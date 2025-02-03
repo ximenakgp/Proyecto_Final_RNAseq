@@ -32,3 +32,22 @@ project_info
 #    project organism file_source     project_home project_type n_samples
 # 57 SRP068565    human         sra data_sources/sra data_sources        20
 
+# Crear un objeto de tipo RangedSummarizedExperiment (RSE) con la información a nivel de genes
+rse_gene_SRP068565 <- create_rse(project_info)
+
+## create_rse()es una función para GENCODE v26 (la anotación predeterminada para archivos humanos)
+
+# Explorar el objeto RSE
+rse_gene_SRP068565
+
+# class: RangedSummarizedExperiment
+# dim: 63856 20
+# metadata(8): time_created recount3_version ... annotation recount3_url
+# assays(1): raw_counts
+# rownames(63856): ENSG00000278704.1 ENSG00000277400.1 ...
+# ENSG00000182484.15_PAR_Y ENSG00000227159.8_PAR_Y
+# rowData names(10): source type ... havana_gene tag
+# colnames(20): SRR3105695 SRR3105677 ... SRR3105694 SRR3105696
+# colData names(175): rail_id external_id ...
+# recount_pred.curated.cell_line BigWigURL
+
