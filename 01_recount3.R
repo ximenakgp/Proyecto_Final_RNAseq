@@ -51,3 +51,46 @@ rse_gene_SRP068565
 # colData names(175): rail_id external_id ...
 # recount_pred.curated.cell_line BigWigURL
 
+## Información sobre el RSE creado
+metadata(rse_gene_SRP068565)
+
+# El estudio SRP068565 se compuso de 20 muestras, para las cuales tenemos 63,856 genes en GENCODE v26.
+# La información específica de la anotación está disponible rowRanges()como se muestra a continuación con
+# la columna gene_id utilizada para identificar genes en cada una de las anotaciones.
+
+## Número de genes y número de muestras
+dim(rse_gene_SRP068565)
+#> [1] 63856    20
+
+## Información sobre los genes
+rowRanges(rse_gene_SRP068565)
+
+# Preparar los datos para otras herramientas de análisis
+
+# Convertir las cuentas por nucleotido a cuentas por lectura usando compute_read_counts().
+assay(rse_gene_SRP068565, "counts") <- compute_read_counts(rse_gene_SRP068565)
+
+# Hacer más fácil de usar la información del experimento
+rse_gene_SRP068565 <- expand_sra_attributes(rse_gene_SRP068565)
+
+colData(rse_gene_SRP068565)[
+  ,
+  grepl("^sra_attribute", colnames(colData(rse_gene_SRP068565)))
+]
+
+# DataFrame with 20 rows and 2 columns
+# sra_attribute.drug_treatment sra_attribute.source_name
+# <character>               <character>
+#   SRR3105695                         none                HeLa cells
+# SRR3105677                    10 uM 1C8                HeLa cells
+# SRR3105678                    10 uM 1C8                HeLa cells
+# SRR3105679                    10 uM 1C8                HeLa cells
+# SRR3105680                    10 uM 1C8                HeLa cells
+# ...                                 ...                       ...
+# SRR3105691                     5 uM 1C8                HeLa cells
+# SRR3105692                     5 uM 1C8                HeLa cells
+# SRR3105693                         none                HeLa cells
+# SRR3105694                         none                HeLa cells
+# SRR3105696                         none                HeLa cells
+
+
