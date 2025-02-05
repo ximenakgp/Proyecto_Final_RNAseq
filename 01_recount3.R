@@ -25,7 +25,7 @@ human_projects[57, ]
 ## Colocar el ID del proyecto
 project_info <- subset(
   human_projects,
-  project == "SRP068565" & project_type == "data_sources"
+  project == "SRP033432" & project_type == "data_sources"
 )
 project_info
 
@@ -33,12 +33,12 @@ project_info
 # 57 SRP068565    human         sra data_sources/sra data_sources        20
 
 # Crear un objeto de tipo RangedSummarizedExperiment (RSE) con la información a nivel de genes
-rse_gene_SRP068565 <- create_rse(project_info)
+rse_gene_SRP033432 <- create_rse(project_info)
 
 ## create_rse()es una función para GENCODE v26 (la anotación predeterminada para archivos humanos)
 
 # Explorar el objeto RSE
-rse_gene_SRP068565
+rse_gene_SRP033432
 
 # class: RangedSummarizedExperiment
 # dim: 63856 20
