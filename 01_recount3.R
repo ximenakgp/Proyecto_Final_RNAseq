@@ -93,4 +93,25 @@ colData(rse_gene_SRP068565)[
 # SRR3105694                         none                HeLa cells
 # SRR3105696                         none                HeLa cells
 
+rse_gene_SRP068565$sra.sample_attributes[]
 
+# [1] "drug treatment;;none|source_name;;HeLa cells"
+# [2] "drug treatment;;10 uM 1C8|source_name;;HeLa cells"
+# [3] "drug treatment;;10 uM 1C8|source_name;;HeLa cells"
+# [4] "drug treatment;;10 uM 1C8|source_name;;HeLa cells"
+# [5] "drug treatment;;10 uM 1C8|source_name;;HeLa cells"
+# [6] "drug treatment;;1 uM 1C8|source_name;;HeLa cells"
+# [7] "drug treatment;;1 uM 1C8|source_name;;HeLa cells"
+# [8] "drug treatment;;1 uM 1C8|source_name;;HeLa cells"
+# [9] "drug treatment;;1 uM 1C8|source_name;;HeLa cells"
+# [10] "drug treatment;;20 uM 1C8|source_name;;HeLa cells"
+# [11] "drug treatment;;20 uM 1C8|source_name;;HeLa cells"
+# [12] "drug treatment;;20 uM 1C8|source_name;;HeLa cells"
+# [13] "drug treatment;;20 uM 1C8|source_name;;HeLa cells"
+# [14] "drug treatment;;5 uM 1C8|source_name;;HeLa cells"
+# [15] "drug treatment;;5 uM 1C8|source_name;;HeLa cells"
+# [16] "drug treatment;;5 uM 1C8|source_name;;HeLa cells"
+# [17] "drug treatment;;5 uM 1C8|source_name;;HeLa cells"
+# [18] "drug treatment;;none|source_name;;HeLa cells"
+# [19] "drug treatment;;none|source_name;;HeLa cells"
+# [20] "drug treatment;;none|source_name;;HeLa cells"
