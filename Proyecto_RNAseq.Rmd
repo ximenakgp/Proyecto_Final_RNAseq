@@ -23,8 +23,8 @@ subtitle: Análisis de Expresión Diferencial
 
 # Cargar el paquete de R que incluye a SummarizedExperiment y todas las demás dependencias
 library("recount3")
-library(limma)
-library(edgeR)
+library("limma")
+library("edgeR")
 
 ```
 
@@ -157,6 +157,7 @@ dim(rse_gene_SRP075398)
 
 # Porcentaje de genes retenidos
 round(nrow(rse_gene_SRP075398) / nrow(rse_gene_SRP075398_unfiltered) * 100, 2)
+
 ```
 
 
@@ -164,11 +165,15 @@ round(nrow(rse_gene_SRP075398) / nrow(rse_gene_SRP075398_unfiltered) * 100, 2)
 
 ```{r}
 # Crear un objeto DGEList para normalización
-dge <- DGEList(counts = assay(rse_gene_SRP075398, "counts"))
+dge <- DGEList(
+    counts = assay(rse_gene_SRP075398, "counts"),
+    genes = rowData(rse_gene_SRP075398)
+)
 
 # Normalización TMM
 dge <- calcNormFactors(dge)
 
+dge
 ```
 
 
@@ -176,13 +181,138 @@ dge <- calcNormFactors(dge)
 
 ```{r}
 
-# Crear la matriz de diseño
-design <- model.matrix(
+mod <- model.matrix(
   ~ sra_attribute.cell_line * sra_attribute.transfection,
   data = colData(rse_gene_SRP075398)
 )
 
+colnames(mod)
+
+# Simplificar nombres de la columna
+
+#colnames(mod) <- c("Intercept", "CellLine_MCF7", "Transfection_miR29a", 
+                   #"Transfection_miR29b1", "Interaction_MCF7_miR29a", 
+                   #"Interaction_MCF7_miR29b1")
 ```
+
+# Visualizar matriz (REVISAR ESTO AL FINAL)
+
+```{r}
+library(ExploreModelMatrix)
+
+## Crear las visualizaciones
+vd <- ExploreModelMatrix::VisualizeDesign(
+    sampleData = colData(rse_gene_SRP075398), # Metadatos de las muestras
+    designFormula = ~ sra_attribute.cell_line * sra_attribute.transfection,           # Fórmula del modelo
+    textSizeFitted = 1                       # Tamaño del texto
+)
+
+library(cowplot)
+cowplot::plot_grid(plotlist = vd$plotlist)
+
+```
+
+
+# Expresión diferencial
+
+```{r}
+vGene <- voom(dge, mod, plot = TRUE)
+
+# Ajuste del modelo lineal y cálculo de estadísticas empíricas de Bayes
+eb_results <- eBayes(lmFit(vGene))
+
+de_results <- topTable(
+    eb_results,
+    coef = 2,
+    number = nrow(rse_gene_SRP075398),
+    sort.by = "none"
+)
+
+# Dimensiones y vista preliminar de los resultados
+dim(de_results)
+head(de_results)
+
+```
+```{r}
+
+## Genes diferencialmente expresados con FDR < 5%
+table(de_results$adj.P.Val < 0.05)
+
+## Visualizar los resultados estadísticos
+
+plotMA(eb_results, coef = 2)
+
+volcanoplot(eb_results, coef = 2, highlight = 3, names = de_results$gene_name)
+
+## Información de los 3 genes más significativos 
+de_results[de_results$gene_name %in% c("AMIGO2", "APBB2", "LGALS3"), ]
+
+```
+
+# Visualizar genes DE
+
+```{r}
+
+# Revisar los top 50 genes diferencialmente expresados
+
+## Extraer valores de los genes de interés
+exprs_heatmap <- vGene$E[rank(de_results$adj.P.Val) <= 50, ]
+
+## Creemos una tabla con información de las muestras
+## y con nombres de columnas más amigables
+df <- as.data.frame(colData(rse_gene_SRP075398)[, c("sra_attribute.cell_line", "sra_attribute.transfection")])
+colnames(df) <- c("Cell_line", "Transfection")
+
+## Hagamos un heatmap
+library("pheatmap")
+pheatmap(
+    exprs_heatmap,
+    cluster_rows = TRUE,
+    cluster_cols = TRUE,
+    show_rownames = FALSE,
+    show_colnames = FALSE,
+    annotation_col = df
+)
+```
+
+```{r}
+# MDS (multidimensional scaling)
+
+## Para colores
+library("RColorBrewer")
+
+## Conviertiendo los grupos de Cell_line a colores
+col.group <- df$Cell_line
+levels(col.group) <- brewer.pal(nlevels(col.group), "Set1")
+col.group <- as.character(col.group)
+
+## MDS por grupos de Cell_line
+plotMDS(vGene$E, labels = df$Cell_line, col = col.group)
+```
+
+
+```{r}
+## Para colores
+library("RColorBrewer")
+
+## Convertir Transfection a colores
+col.group <- df$Transfection
+df$Transfection <- as.factor(df$Transfection) # Asegúrate de que sea un factor
+colors <- brewer.pal(nlevels(df$Transfection), "Set1") # Generar paleta de colores
+levels(col.group) <- colors # Asignar colores a los niveles
+col.group <- as.character(col.group) # Convertir a vector de caracteres
+
+## MDS por grupos de Transfection
+plotMDS(vGene$E, labels = df$Transfection, col = col.group, 
+        main = "MDS Plot by Transfection", pch = 16)
+
+## Agregar leyenda
+legend("topright", legend = levels(df$Transfection), fill = unique(col.group),
+       title = "Transfection Groups")
+```
+
+
+
 
 
 
