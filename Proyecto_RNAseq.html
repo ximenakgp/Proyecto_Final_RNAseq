@@ -1690,7 +1690,9 @@ terapia?</p>
 #        &quot;edgeR&quot;, 
 #        &quot;ExploreModelMatrix&quot;,
 #        &quot;limma&quot;,
-#        &quot;recount3&quot;
+#        &quot;recount3&quot;, 
+#        &quot;SummarizedExperiment&quot;, 
+#        &quot;GenomicRanges&quot;
 #    )
 #)
 
@@ -1704,6 +1706,8 @@ terapia?</p>
 
 ## Cargar los paquetes
 library(&quot;recount3&quot;)
+library(&quot;SummarizedExperiment&quot;)
+library(&quot;GenomicRanges&quot;)
 library(&quot;limma&quot;)
 library(&quot;edgeR&quot;)
 library(&quot;ExploreModelMatrix&quot;)
@@ -1715,9 +1719,9 @@ library(&quot;pheatmap&quot;)</code></pre>
 <h2>Selección de Proyecto</h2>
 <pre class="r"><code># Obtener la lista de proyectos disponibles 
 human_projects &lt;- available_projects()</code></pre>
-<pre><code>## 2025-02-07 06:43:45.714873 caching file sra.recount_project.MD.gz.</code></pre>
-<pre><code>## 2025-02-07 06:43:46.43142 caching file gtex.recount_project.MD.gz.</code></pre>
-<pre><code>## 2025-02-07 06:43:47.144487 caching file tcga.recount_project.MD.gz.</code></pre>
+<pre><code>## 2025-02-07 09:54:13.149802 caching file sra.recount_project.MD.gz.</code></pre>
+<pre><code>## 2025-02-07 09:54:14.345112 caching file gtex.recount_project.MD.gz.</code></pre>
+<pre><code>## 2025-02-07 09:54:15.082285 caching file tcga.recount_project.MD.gz.</code></pre>
 <pre class="r"><code># Ver los proyectos disponibles
 dim(human_projects)</code></pre>
 <pre><code>## [1] 8742    6</code></pre>
@@ -1754,17 +1758,17 @@ project_info</code></pre>
 </div>
 <pre class="r"><code># Crear un objeto de tipo RangedSummarizedExperiment (RSE) con la información a nivel de genes
 rse_gene_SRP075398 &lt;- create_rse(project_info)</code></pre>
-<pre><code>## 2025-02-07 06:43:55.881548 downloading and reading the metadata.</code></pre>
-<pre><code>## 2025-02-07 06:43:56.538735 caching file sra.sra.SRP075398.MD.gz.</code></pre>
-<pre><code>## 2025-02-07 06:43:57.110361 caching file sra.recount_project.SRP075398.MD.gz.</code></pre>
-<pre><code>## 2025-02-07 06:43:57.713542 caching file sra.recount_qc.SRP075398.MD.gz.</code></pre>
-<pre><code>## 2025-02-07 06:43:58.287282 caching file sra.recount_seq_qc.SRP075398.MD.gz.</code></pre>
-<pre><code>## 2025-02-07 06:43:58.963287 caching file sra.recount_pred.SRP075398.MD.gz.</code></pre>
-<pre><code>## 2025-02-07 06:43:59.22002 downloading and reading the feature information.</code></pre>
-<pre><code>## 2025-02-07 06:43:59.686916 caching file human.gene_sums.G026.gtf.gz.</code></pre>
-<pre><code>## 2025-02-07 06:44:00.887904 downloading and reading the counts: 18 samples across 63856 features.</code></pre>
-<pre><code>## 2025-02-07 06:44:01.521122 caching file sra.gene_sums.SRP075398.G026.gz.</code></pre>
-<pre><code>## 2025-02-07 06:44:02.069057 constructing the RangedSummarizedExperiment (rse) object.</code></pre>
+<pre><code>## 2025-02-07 09:54:24.442701 downloading and reading the metadata.</code></pre>
+<pre><code>## 2025-02-07 09:54:25.468762 caching file sra.sra.SRP075398.MD.gz.</code></pre>
+<pre><code>## 2025-02-07 09:54:26.295396 caching file sra.recount_project.SRP075398.MD.gz.</code></pre>
+<pre><code>## 2025-02-07 09:54:27.214253 caching file sra.recount_qc.SRP075398.MD.gz.</code></pre>
+<pre><code>## 2025-02-07 09:54:28.042583 caching file sra.recount_seq_qc.SRP075398.MD.gz.</code></pre>
+<pre><code>## 2025-02-07 09:54:28.881614 caching file sra.recount_pred.SRP075398.MD.gz.</code></pre>
+<pre><code>## 2025-02-07 09:54:29.134072 downloading and reading the feature information.</code></pre>
+<pre><code>## 2025-02-07 09:54:29.705697 caching file human.gene_sums.G026.gtf.gz.</code></pre>
+<pre><code>## 2025-02-07 09:54:30.855258 downloading and reading the counts: 18 samples across 63856 features.</code></pre>
+<pre><code>## 2025-02-07 09:54:31.581367 caching file sra.gene_sums.SRP075398.G026.gz.</code></pre>
+<pre><code>## 2025-02-07 09:54:32.357707 constructing the RangedSummarizedExperiment (rse) object.</code></pre>
 <pre class="r"><code># Explorar el objeto RSE
 rse_gene_SRP075398</code></pre>
 <pre><code>## class: RangedSummarizedExperiment 
@@ -1780,7 +1784,7 @@ rse_gene_SRP075398</code></pre>
 <pre class="r"><code>## Información sobre el RSE creado
 metadata(rse_gene_SRP075398)</code></pre>
 <pre><code>## $time_created
-## [1] &quot;2025-02-07 06:44:02 CST&quot;
+## [1] &quot;2025-02-07 09:54:32 CST&quot;
 ## 
 ## $recount3_version
 ##           package ondiskversion loadedversion
@@ -1878,7 +1882,7 @@ rowRanges(rse_gene_SRP075398)</code></pre>
 </div>
 <div id="preparación-de-los-datos" class="section level2">
 <h2>Preparación de los datos</h2>
-<pre class="r"><code># Convertir las cuentas por nucleotido a cuentas por lectura usando compute_read_counts().
+<pre class="r"><code># Convertir las cuentas por nucleotido a cuentas por lectura usando compute_read_counts()
 assay(rse_gene_SRP075398, &quot;counts&quot;) &lt;- compute_read_counts(rse_gene_SRP075398)
 
 # Inspeccionar la información experimental de cada muestra
