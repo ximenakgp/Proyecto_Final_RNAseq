@@ -3,25 +3,49 @@ title: "Proyecto_RNAseq"
 author: "Karla Ximena González Platas"
 date: "2025-02-05"
 output:
-  html_document:
-    toc: true
-    toc_depth: '2'
-    df_print: paged
   pdf_document:
     toc: true
     toc_depth: 2
     highlight: tango
     keep_tex: true
+  html_document:
+    toc: true
+    toc_depth: '2'
+    df_print: paged
 subtitle: Análisis de Expresión Diferencial
 ---
 
 ## Introducción 
 El conjunto de datos analizado en este proyecto se deriva del estudio de Muluhngwi y Klinge (2021), que explora las interacciones regulatorias entre los miembros de la familia miR-29 y los lncRNAs (ARN largos no codificantes) en el contexto de la resistencia a la terapia endocrina. En este estudio, se aplicó el análisis de RNA-seq para investigar la expresión de lncRNAs regulados por miR-29b-1-3p y miR-29a-3p en células de cáncer de mama sensibles a la terapia endocrina (MCF-7) y resistentes a la terapia endocrina (LCC9). Estas líneas celulares fueron empleadas para estudiar los efectos de la regulación de lncRNAs por los miR-29b-1-3p y miR-29a-3p en la progresión del cáncer de mama y la resistencia endocrina. Para ello, se realizaron transfecciones en las células MCF-7 y LCC9 con pre-miR-29b-1-3p y pre-miR-29a-3p para evaluar los efectos de su sobreexpresión, mientras que el uso de anti-miR-29 y un control negativo permitió analizar la inhibición de estos miRNAs. Asimismo, se llevaron a cabo co-transfecciones combinando pre-miR-29b-1-3p o pre-miR-29a-3p con anti-miR-29 para examinar posibles efectos compensatorios en la regulación de los lncRNAs.
 
-## Instalar y cargar paquetes
+## Instalación y carga de paquetes
 
 ```{r message=FALSE, warning=FALSE}
 
+# Instalar BiocManager si no está instalado
+#if (!requireNamespace("BiocManager", quietly = TRUE)) {
+#    install.packages("BiocManager")
+#}
+
+# Instalar paquetes de Bioconductor
+#BiocManager::install(
+#    c(
+#        "edgeR", 
+#        "ExploreModelMatrix",
+#        "limma",
+#        "recount3"
+#    )
+#)
+
+# Instalar paquetes de CRAN
+#install.packages(c(
+#    "pheatmap", 
+#    "patchwork",
+#    "RColorBrewer",
+#    "cowplot"
+#))
+
+## Cargar los paquetes
 library("recount3")
 library("limma")
 library("edgeR")
@@ -31,7 +55,6 @@ library("RColorBrewer")
 library("pheatmap")
 
 ```
-
 
 ## Selección de Proyecto
 
@@ -43,6 +66,8 @@ human_projects <- available_projects()
 # Ver los proyectos disponibles
 dim(human_projects)
 
+# Esto nos indica cuántos proyectos están disponibles (número de filas) 
+# y cuántas columnas de información se proporcionan para cada proyecto.
 
 # Mostrar las primeras filas para inspeccionar su estructura y contenido
 head(human_projects)
@@ -56,7 +81,8 @@ project_info <- subset(
   project == "SRP075398" & project_type == "data_sources"
 )
 
-# Mostrar la información del proyecto seleccionado para confirmar que se ha filtrado correctamente
+# Mostrar la información del proyecto seleccionado para confirmar que se ha
+# filtrado correctamente
 project_info
 
 ```
@@ -93,11 +119,13 @@ rowRanges(rse_gene_SRP075398)
 # Convertir las cuentas por nucleotido a cuentas por lectura usando compute_read_counts().
 assay(rse_gene_SRP075398, "counts") <- compute_read_counts(rse_gene_SRP075398)
 
+# Inspeccionar la información experimental de cada muestra
 rse_gene_SRP075398$sra.sample_attributes[]
 
-# Hacer más fácil de usar la información del experimento
+# Expandir los atributos en columnas separadas para facilitar su uso
 rse_gene_SRP075398 <- expand_sra_attributes(rse_gene_SRP075398)
 
+# Extraer y mostrar las columnas que contienen atributos 
 colData(rse_gene_SRP075398)[
   ,
   grepl("^sra_attribute", colnames(colData(rse_gene_SRP075398)))
@@ -107,14 +135,15 @@ colData(rse_gene_SRP075398)[
 
 ```{r}
 
-# Ajustar el tipo de dato de las variables
+# Ajustar el tipo de dato de las variables categóricas 
+
 rse_gene_SRP075398$sra_attribute.cell_line <- factor(rse_gene_SRP075398$sra_attribute.cell_line)
 
 rse_gene_SRP075398$sra_attribute.source_name <- factor(tolower(rse_gene_SRP075398$sra_attribute.source_name))
 
 rse_gene_SRP075398$sra_attribute.transfection <- factor(rse_gene_SRP075398$sra_attribute.transfection)
 
-# Resumen de las variables
+# Resumen estadístico de las variables seleccionadas
 summary(as.data.frame(colData(rse_gene_SRP075398)[
     ,
     grepl("^sra_attribute.[cell_line|source_name|transfection]", colnames(colData(rse_gene_SRP075398)))
@@ -123,12 +152,14 @@ summary(as.data.frame(colData(rse_gene_SRP075398)[
 ```
 
 ```{r}
-# Calcular la proporción de lecturas asignadas a genes
+
+# Calcular la proporción de lecturas asignadas a genes para evaluar la calidad de las muestras
 rse_gene_SRP075398$assigned_gene_prop <- 
   rse_gene_SRP075398$recount_qc.gene_fc_count_all.assigned / 
   rse_gene_SRP075398$recount_qc.gene_fc_count_all.total
 
-# Resumen de la nueva variable
+# Resumen de la nueva variable para identificar si las muestras tienen una asignación adecuada de lecturas (valores cercanos a 1 son indicadores de buena calidad)
+
 summary(rse_gene_SRP075398$assigned_gene_prop)
 
 ```
@@ -139,14 +170,26 @@ summary(rse_gene_SRP075398$assigned_gene_prop)
 # Guardar el objeto original
 rse_gene_SRP075398_unfiltered <- rse_gene_SRP075398
 
-# Filtrar muestras de baja calidad
-hist(rse_gene_SRP075398$assigned_gene_prop)
+# Visualizar la distribución de la proporción de lecturas asignadas a genes en cada muestra
+
+hist(rse_gene_SRP075398$assigned_gene_prop, 
+     main = "Proporción de lecturas asignadas a genes", 
+     xlab = "Proporción asignada", col = "lightblue")
+
+# Verificar si existen muestras de baja calidad antes del filtrado
 table(rse_gene_SRP075398$assigned_gene_prop < 0.3)
+
+# Filtrar las muestras con proporción de lecturas asignadas superior a 0.3
 rse_gene_SRP075398 <- rse_gene_SRP075398[, rse_gene_SRP075398$assigned_gene_prop > 0.3]
 
-# Filtrar genes de baja expresión usando edgeR
+# Crear un objeto DGEList, para el análisis diferencial usando edgeR
 dge <- DGEList(counts = assay(rse_gene_SRP075398, "counts"))
-keep <- filterByExpr(dge, group = rse_gene_SRP075398$sra_attribute.transfection)
+
+# Filtrar genes de baja expresión considerando combinaciones de transfección y línea celular
+keep <- filterByExpr(dge, group = interaction(
+  rse_gene_SRP075398$sra_attribute.transfection, 
+  rse_gene_SRP075398$sra_attribute.cell_line
+))
 rse_gene_SRP075398 <- rse_gene_SRP075398[keep, ]
 
 # Dimensiones finales
@@ -157,10 +200,12 @@ round(nrow(rse_gene_SRP075398) / nrow(rse_gene_SRP075398_unfiltered) * 100, 2)
 
 ```
 
+Se descartó los genes de baja expresión porque no contribuyen significativamente a las conclusiones biológicas. De modo que, después del filtrado se obtuvieron 23741 lo cual representa el 37.18% de genes retenidos. 
 
 ## Normalización de los datos
 
 ```{r}
+
 # Crear un objeto DGEList para normalización
 dge <- DGEList(
     counts = assay(rse_gene_SRP075398, "counts"),
@@ -171,6 +216,7 @@ dge <- DGEList(
 dge <- calcNormFactors(dge)
 
 dge
+
 ```
 
 
@@ -178,16 +224,27 @@ dge
 
 ```{r}
 
+# Construcción de la matriz de diseño para el modelo lineal.
 mod <- model.matrix(
   ~ sra_attribute.cell_line + sra_attribute.transfection + assigned_gene_prop,
   data = colData(rse_gene_SRP075398)
 )
 
+# Cada columna representa un coeficiente del modelo
 colnames(mod)
+
+# Visualizar la matriz de diseño completa
+# Las filas representan muestras, mientras que las columnas son las variables del modelo
 mod
+
 ```
 
-# Visualizar matriz
+Este modelo incluye:
+- sra_attribute.cell_line: Efecto del tipo de línea celular (LCC9 o MCF-7).
+- sra_attribute.transfection: Efecto del tratamiento por transfección (pre-miR-29a, pre-miR-29b-1, Anti-miR-29a).
+- assigned_gene_prop: Proporción de lecturas asignadas a genes
+
+## Visualizar matriz
 
 ```{r}
 
@@ -202,58 +259,62 @@ cowplot::plot_grid(plotlist = vd$plotlist)
 
 ```
 
-
-# Expresión diferencial
+## Expresión diferencial
 
 ```{r}
+
+# Convertir los datos de conteo a valores log2 y ajusta las varianzas para hacerlos aptos para un análisis lineal 
+
 vGene <- voom(dge, mod, plot = TRUE)
 
 # Ajuste del modelo lineal y cálculo de estadísticas empíricas de Bayes
 eb_results <- eBayes(lmFit(vGene))
 
+
+# Extraer la tabla de genes diferencialmente expresados.
 de_results <- topTable(
     eb_results,
-    coef = 2,
+    coef = 2, # Se refiere al coeficiente del segundo término en el modelo
     number = nrow(rse_gene_SRP075398),
     sort.by = "none"
 )
 
 # Dimensiones y vista preliminar de los resultados
 dim(de_results)
+
 head(de_results)
 
 ```
 ```{r}
 
-## Genes diferencialmente expresados con FDR < 5%
+# Genes diferencialmente expresados con FDR < 5%
 table(de_results$adj.P.Val < 0.05)
 
-## Visualizar los resultados estadísticos
+# Visualizar los resultados estadísticos
 
 plotMA(eb_results, coef = 2)
 
 volcanoplot(eb_results, coef = 2, highlight = 3, names = de_results$gene_name)
 
-## Información de los 3 genes más significativos 
+# Información de los 3 genes más significativos 
 de_results[de_results$gene_name %in% c("AMIGO2", "AFAP1L2", "PHLDA1"), ]
 
 ```
 
-# Visualizar genes DE
+## Visualizar genes DE
 
 ```{r}
 
 # Revisar los top 50 genes diferencialmente expresados
 
-## Extraer valores de los genes de interés
+# Extraer valores de los genes de interés
 exprs_heatmap <- vGene$E[rank(de_results$adj.P.Val) <= 50, ]
 
-## Creemos una tabla con información de las muestras
-## y con nombres de columnas más amigables
+# Crear una tabla con información de las muestras y con nombres de columnas más amigables
 df <- as.data.frame(colData(rse_gene_SRP075398)[, c("sra_attribute.cell_line", "sra_attribute.transfection")])
 colnames(df) <- c("Cell_line", "Transfection")
 
-## Hagamos un heatmap
+# Hacer un heatmap
 pheatmap(
     exprs_heatmap,
     cluster_rows = TRUE,
@@ -262,14 +323,16 @@ pheatmap(
     show_colnames = FALSE,
     annotation_col = df
 )
+
 ```
 
 ```{r}
+
 # MDS (multidimensional scaling)
 
-## Conviertiendo los grupos de Cell_line a colores
+## Convertir los grupos de Cell_line a colores
 col.group <- df$Cell_line
-levels(col.group) <- brewer.pal(nlevels(col.group), "Set1")
+levels(col.group) <- brewer.pal(nlevels(col.group), "Set2")
 col.group <- as.character(col.group)
 
 ## MDS por grupos de Cell_line
@@ -282,7 +345,7 @@ plotMDS(vGene$E, labels = df$Cell_line, col = col.group)
 ## Convertir Transfection a colores
 col.group <- df$Transfection
 df$Transfection <- as.factor(df$Transfection) # Asegúrate de que sea un factor
-colors <- brewer.pal(nlevels(df$Transfection), "Set1") # Generar paleta de colores
+colors <- brewer.pal(nlevels(df$Transfection), "Set2") # Generar paleta de colores
 levels(col.group) <- colors # Asignar colores a los niveles
 col.group <- as.character(col.group) # Convertir a vector de caracteres
 
