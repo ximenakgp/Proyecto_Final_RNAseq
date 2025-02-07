@@ -126,7 +126,7 @@ rowRanges(rse_gene_SRP075398)
 
 ```{r}
 
-# Convertir las cuentas por nucleotido a cuentas por lectura usando compute_read_counts().
+# Convertir las cuentas por nucleotido a cuentas por lectura usando compute_read_counts()
 assay(rse_gene_SRP075398, "counts") <- compute_read_counts(rse_gene_SRP075398)
 
 # Inspeccionar la información experimental de cada muestra
@@ -277,7 +277,6 @@ Interpretación de los coeficientes
     - sra_attribute.transfectionPre-miR-29a: Refleja los cambios en la expresión cuando se pasa de la condición de referencia a las condiciones de tratamiento Pre-miR-29a y Pre-miR-29b-1.
 
 ## Expresión diferencial
-
 
 ```{r}
 
