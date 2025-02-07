@@ -3,20 +3,26 @@ title: "Proyecto_RNAseq"
 author: "Karla Ximena González Platas"
 date: "2025-02-05"
 output:
+  html_document:
+    toc: true
+    toc_depth: '2'
+    df_print: paged
   pdf_document:
     toc: true
     toc_depth: 2
     highlight: tango
     keep_tex: true
-  html_document:
-    toc: true
-    toc_depth: '2'
-    df_print: paged
 subtitle: Análisis de Expresión Diferencial
 ---
 
 ## Introducción 
 El conjunto de datos analizado en este proyecto se deriva del estudio de Muluhngwi y Klinge (2021), que explora las interacciones regulatorias entre los miembros de la familia miR-29 y los lncRNAs (ARN largos no codificantes) en el contexto de la resistencia a la terapia endocrina. En este estudio, se aplicó el análisis de RNA-seq para investigar la expresión de lncRNAs regulados por miR-29b-1-3p y miR-29a-3p en células de cáncer de mama sensibles a la terapia endocrina (MCF-7) y resistentes a la terapia endocrina (LCC9). Estas líneas celulares fueron empleadas para estudiar los efectos de la regulación de lncRNAs por los miR-29b-1-3p y miR-29a-3p en la progresión del cáncer de mama y la resistencia endocrina. Para ello, se realizaron transfecciones en las células MCF-7 y LCC9 con pre-miR-29b-1-3p y pre-miR-29a-3p para evaluar los efectos de su sobreexpresión, mientras que el uso de anti-miR-29 y un control negativo permitió analizar la inhibición de estos miRNAs. Asimismo, se llevaron a cabo co-transfecciones combinando pre-miR-29b-1-3p o pre-miR-29a-3p con anti-miR-29 para examinar posibles efectos compensatorios en la regulación de los lncRNAs.
+
+## Pregunta de investigación
+
+¿Cómo la regulación por miembros de la familia miR-29 (miR-29a y miR-29b-1) afecta la expresión génica en células de cáncer de mama sensibles (MCF-7) y resistentes (LCC9) a la terapia endocrina, y qué genes específicos podrían estar involucrados en la resistencia a esta terapia?
+
+
 
 ## Instalación y carga de paquetes
 
@@ -240,9 +246,10 @@ mod
 ```
 
 Este modelo incluye:
-- sra_attribute.cell_line: Efecto del tipo de línea celular (LCC9 o MCF-7).
-- sra_attribute.transfection: Efecto del tratamiento por transfección (pre-miR-29a, pre-miR-29b-1, Anti-miR-29a).
-- assigned_gene_prop: Proporción de lecturas asignadas a genes
+
+      -sra_attribute.cell_line: Efecto del tipo de línea celular (LCC9 o MCF-7).
+      -sra_attribute.transfection: Efecto del tratamiento por transfección (pre-miR-29a, pre-miR-29b-1, Anti-miR-29a).
+      -assigned_gene_prop: Proporción de lecturas asignadas a genes
 
 ## Visualizar matriz
 
@@ -259,14 +266,25 @@ cowplot::plot_grid(plotlist = vd$plotlist)
 
 ```
 
+Interpretación de los coeficientes
+
+    - Intercept: Representa el nivel basal del modelo, asociado a la condición de referencia, la línea celular LCC9 y el tratamiento con Anti-miR-29a.
+    - sra_attribute.cell_lineMCF-7: Indica la diferencia de expresión entre las líneas celulares MCF-7 y LCC9.
+    - sra_attribute.transfectionPre-miR-29a: Refleja los cambios en la expresión cuando se pasa de la condición de referencia a las condiciones de tratamiento Pre-miR-29a y Pre-miR-29b-1.
+
 ## Expresión diferencial
+
 
 ```{r}
 
 # Convertir los datos de conteo a valores log2 y ajusta las varianzas para hacerlos aptos para un análisis lineal 
 
 vGene <- voom(dge, mod, plot = TRUE)
+```
 
+El método voom estima la relación media-varianza de los recuentos logarítmicos, genera un peso de precisión para cada observación y los ingresa en el flujo de trabajo del análisis bayesiano empírico de Limma. Por lo tanto, este gráfico generado por voom() muestra la relación entre la media y la varianza de los datos de expresión génica en escala log2. En el eje X se observa la expresión promedio de los genes, mientras que el eje Y representa la raíz cuadrada de la desviación estándar. Los genes con baja expresión presentan mayor dispersión, mientras que a niveles altos de expresión la varianza disminuye y se estabiliza. [https://genomebiology.biomedcentral.com/articles/10.1186/gb-2014-15-2-r29]
+
+```{r}
 # Ajuste del modelo lineal y cálculo de estadísticas empíricas de Bayes
 eb_results <- eBayes(lmFit(vGene))
 
@@ -285,6 +303,9 @@ dim(de_results)
 head(de_results)
 
 ```
+El coeficiente 2 (sra_attribute.cell_lineMCF-7) evalúa la expresión diferencial entre las líneas celulares MCF-7 y LCC9, lo que permite identificar genes relacionados con la resistencia a la terapia endocrina.
+
+
 ```{r}
 
 # Genes diferencialmente expresados con FDR < 5%
@@ -294,12 +315,34 @@ table(de_results$adj.P.Val < 0.05)
 
 plotMA(eb_results, coef = 2)
 
+```
+
+El gráfico generado por la función plotMA() en el análisis de expresión diferencial muestra los resultados estadísticos del contraste entre las líneas celulares MCF-7 y LCC9. En este tipo de gráfico, el eje X representa la expresión promedio en escala logarítmica para cada gen, mientras que el eje Y muestra el cambio logarítmico en la expresión (log2 fold-change) asociado al coeficiente 2 del modelo ajustado.La línea horizontal en y = 0 representa genes sin cambios significativos en su expresión. https://www.rdocumentation.org/packages/DESeq2/versions/1.12.3/topics/plotMA
+
+
+```{r}
 volcanoplot(eb_results, coef = 2, highlight = 3, names = de_results$gene_name)
 
 # Información de los 3 genes más significativos 
 de_results[de_results$gene_name %in% c("AMIGO2", "AFAP1L2", "PHLDA1"), ]
 
 ```
+
+
+https://www.genecards.org/cgi-bin/carddisp.pl?gene=AMIGO2&keywords=AMIGO2
+
+https://www.genecards.org/cgi-bin/carddisp.pl?gene=AFAP1L2&keywords=AFAP1L2
+
+https://www.genecards.org/cgi-bin/carddisp.pl?gene=PHLDA1&keywords=PHLDA1
+
+En este gráfico, cada punto representa un gen. El eje X muestra el cambio logarítmico en la expresión (log2 fold change) entre dos condiciones (en este caso, células MCF-7 resistentes a la terapia endocrina y células LCC9 sensibles). El eje Y muestra el negativo del logaritmo en base 10 del valor p ajustado (-log10(adj.P.Val)), que indica la significancia estadística del cambio en la expresión.
+
+Los puntos en la esquina superior derecha representan genes que tienen una expresión significativamente mayor en las células MCF-7 resistentes a la terapia endocrina en comparación con las células LCC9 sensibles. Estos genes podrían estar promoviendo la resistencia a la terapia endocrina.
+
+Los puntos en la esquina superior izquierda representan genes que tienen una expresión significativamente menor en las células MCF-7 resistentes a la terapia endocrina. Estos genes podrían estar siendo suprimidos en células resistentes.
+
+Los puntos en el centro del gráfico representan genes que no muestran cambios significativos en la expresión entre las dos condiciones. Esto puede ser porque los genes no están realmente regulados en respuesta a la resistencia a la terapia endocrina, o porque los cambios en la expresión son demasiado pequeños para ser detectados con el tamaño de muestra dado.
+
 
 ## Visualizar genes DE
 
@@ -327,6 +370,38 @@ pheatmap(
 ```
 
 ```{r}
+## Guardemos los IDs de nuestros 50 genes
+nombres_originales <- rownames(exprs_heatmap)
+
+## Con match() podemos encontrar cual es cual
+rownames(exprs_heatmap) <- rowRanges(rse_gene_SRP075398)$gene_name[
+    match(rownames(exprs_heatmap), rowRanges(rse_gene_SRP075398)$gene_id)
+]
+
+## Guardar la imagen en un PDF largo para poder ver los nombres de los genes
+pdf("pheatmap_con_nombres.pdf", height = 16, useDingbats = FALSE)
+pheatmap(
+    exprs_heatmap,
+    cluster_rows = TRUE,
+    cluster_cols = TRUE,
+    show_rownames = TRUE,
+    show_colnames = FALSE,
+    annotation_col = df,
+    fontsize_row = 6,
+)
+
+dev.off()
+```
+
+
+El heatmap muestra patrones de expresión génica distintos entre las líneas celulares LCC9 y MCF-7 en respuesta a diferentes transfecciones. En general, se observa una clara diferenciación en la expresión de genes entre ambas líneas celulares, lo que sugiere respuestas biológicas distintas a los tratamientos. Por ejemplo, en la línea celular LCC9, genes como MEG3, SAGE1, DLK1 y TRGV9 muestran una alta expresión en las muestras transfectadas con Anti-miR-29a, mientras que en las muestras transfectadas con Pre-miR-29a y Pre-miR-29b-1 su expresión es más baja. En contraste, en la línea celular MCF-7, la expresión de estos genes es relativamente baja en todas las condiciones de transfección.
+
+En cuanto a genes específicos, AMIGO2 se observa que tiene una expresión diferencial en las distintas condiciones y líneas celulares. En particular, AMIGO2 parece tener una expresión más alta en las células LCC9 en comparación con las células MCF-7, lo que sugiere que podría estar involucrado en procesos biológicos específicos de esta línea celular. Otros genes como AFAP1L2, FKBP10 y NEDD9 también muestran patrones de expresión interesantes, con niveles más altos en las células LCC9 en comparación con las células MCF-7, especialmente en las muestras transfectadas con Anti-miR-29a.
+
+En particular, AFAP1L2 muestra una expresión notablemente más alta en las células LCC9 en comparación con las células MCF-7, lo que sugiere que podría estar involucrado en procesos biológicos específicos de esta línea celular. Por otro lado, PHLDA1 no muestra diferencias tan marcadas en su expresión entre las dos líneas celulares, aunque parece tener una expresión ligeramente más alta en las células LCC9 en comparación con las células MCF-7, especialmente en las muestras transfectadas con Anti-miR-29a.
+
+
+```{r}
 
 # MDS (multidimensional scaling)
 
@@ -339,6 +414,9 @@ col.group <- as.character(col.group)
 plotMDS(vGene$E, labels = df$Cell_line, col = col.group)
 ```
 
+Este gráfico evalúa si las muestras se agrupan según la variable Cell_line, la separación clara entre MCF-7 y LCC9 indica que hay diferencias notables en la expresión génica entre estas líneas celulares.
+Esto sugiere que LCC9 (resistente a tamoxifeno) y MCF-7 (sensible a tamoxifeno) tienen perfiles de expresión distintos, lo que podría estar influenciado por la transfección con miR-29a/b.
+Por lo tanto, es posible que los genes regulados por miR-29a/b sean clave en la resistencia al tamoxifeno o en mecanismos de adaptación celular.
 
 ```{r}
 
@@ -358,10 +436,28 @@ legend("topright", legend = levels(df$Transfection), fill = unique(col.group),
        title = "Transfection Groups")
 ```
 
+El gráfico MDS muestra una cierta separación entre los grupos de transfección, donde Anti-miR-29a presenta un perfil distinto en comparación con Pre-miR-29a y Pre-miR-29b-1, que comparten similitudes pero aún muestran cierta dispersión. La dimensión principal (logFC dim 1) captura la mayor variabilidad en la expresión génica, sugiriendo que la transfección tiene un impacto significativo. Sin embargo, la separación no es completamente definida, lo que indica que otros factores celulares pueden estar influyendo en la variabilidad observada.
 
+## Conclusión
+Conclusión con interpretación biológica:
+El análisis de expresión diferencial realizado en este proyecto permitió identificar genes cuya expresión cambia significativamente entre las líneas celulares MCF-7 (sensibles a la terapia endocrina) y LCC9 (resistentes a la terapia endocrina), en respuesta a la modulación de los miembros de la familia miR-29 mediante transfecciones con pre-miR-29a, pre-miR-29b-1 y anti-miR-29a.
 
+Principales hallazgos:
+Diferencias en la expresión génica entre MCF-7 y LCC9:
+El modelo estadístico reveló que aproximadamente el 80% de los genes analizados (19,099 de 23,741) mostraron diferencias significativas en su expresión entre las líneas celulares MCF-7 y LCC9, ajustado por un FDR < 5%. Esto sugiere que las dos líneas celulares tienen perfiles de expresión génica inherentemente distintos, lo que refleja sus diferentes respuestas biológicas a la terapia endocrina.
+Genes clave asociados con la resistencia a la terapia endocrina:
+Los tres genes más significativamente regulados fueron AMIGO2 , AFAP1L2 y PHLDA1 , todos los cuales mostraron patrones de expresión diferencial entre las líneas celulares:
+AMIGO2 : Este gen mostró una expresión notablemente más alta en las células LCC9 en comparación con las células MCF-7. AMIGO2 está involucrado en procesos como la señalización celular y la interacción célula-célula, lo que podría contribuir a la resistencia a la terapia endocrina al promover la supervivencia celular.
+AFAP1L2 : Este gen también presentó una expresión más alta en las células LCC9, especialmente en las muestras transfectadas con Anti-miR-29a. AFAP1L2 está relacionado con la activación de vías de señalización oncogénicas, lo que podría facilitar la progresión del cáncer en células resistentes.
+PHLDA1 : Aunque mostró una diferencia menos marcada, su expresión fue ligeramente mayor en las células LCC9. PHLDA1 está implicado en la regulación de la apoptosis y la resistencia a fármacos, lo que podría desempeñar un papel en la resistencia a la terapia endocrina.
 
+Impacto de la modulación de miR-29:
+Las transfecciones con pre-miR-29a y pre-miR-29b-1 redujeron la expresión de varios genes en ambas líneas celulares, mientras que la inhibición con Anti-miR-29a aumentó la expresión de genes como MEG3 , SAGE1 , y DLK1 en las células LCC9. Esto sugiere que los miembros de la familia miR-29 actúan como reguladores clave de la expresión génica en el contexto del cáncer de mama, y su modulación podría ser una estrategia terapéutica para revertir la resistencia a la terapia endocrina.
 
+Patrones de expresión visualizados en el heatmap:
+El heatmap de los 50 genes más significativamente regulados mostró una clara segregación entre las líneas celulares MCF-7 y LCC9, así como entre los diferentes tratamientos de transfección. Esto indica que tanto la línea celular como el tratamiento específico influyen en la expresión génica global.
+
+Este análisis no solo identifica genes clave asociados con la resistencia, sino que también destaca el papel crucial de los miRNAs en la regulación de redes génicas complejas que subyacen a la progresión del cáncer de mama y su resistencia a tratamientos convencionales.
 
 
 
