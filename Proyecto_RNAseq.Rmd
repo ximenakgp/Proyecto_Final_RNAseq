@@ -3,28 +3,32 @@ title: "Proyecto_RNAseq"
 author: "Karla Ximena González Platas"
 date: "2025-02-05"
 output:
+  html_document:
+    toc: true
+    toc_depth: '2'
+    df_print: paged
   pdf_document:
     toc: true
     toc_depth: 2
     highlight: tango
     keep_tex: true
-  html_document:
-    toc: true
-    toc_depth: '2'
-    df_print: paged
 subtitle: Análisis de Expresión Diferencial
 ---
 
 ## Introducción 
+El conjunto de datos analizado en este proyecto se deriva del estudio de Muluhngwi y Klinge (2021), que explora las interacciones regulatorias entre los miembros de la familia miR-29 y los lncRNAs (ARN largos no codificantes) en el contexto de la resistencia a la terapia endocrina. En este estudio, se aplicó el análisis de RNA-seq para investigar la expresión de lncRNAs regulados por miR-29b-1-3p y miR-29a-3p en células de cáncer de mama sensibles a la terapia endocrina (MCF-7) y resistentes a la terapia endocrina (LCC9). Estas líneas celulares fueron empleadas para estudiar los efectos de la regulación de lncRNAs por los miR-29b-1-3p y miR-29a-3p en la progresión del cáncer de mama y la resistencia endocrina. Para ello, se realizaron transfecciones en las células MCF-7 y LCC9 con pre-miR-29b-1-3p y pre-miR-29a-3p para evaluar los efectos de su sobreexpresión, mientras que el uso de anti-miR-29 y un control negativo permitió analizar la inhibición de estos miRNAs. Asimismo, se llevaron a cabo co-transfecciones combinando pre-miR-29b-1-3p o pre-miR-29a-3p con anti-miR-29 para examinar posibles efectos compensatorios en la regulación de los lncRNAs.
 
-## Instalar y cargas paquetes
+## Instalar y cargar paquetes
 
 ```{r message=FALSE, warning=FALSE}
 
-# Cargar el paquete de R que incluye a SummarizedExperiment y todas las demás dependencias
 library("recount3")
 library("limma")
 library("edgeR")
+library("ExploreModelMatrix")
+library("cowplot")
+library("RColorBrewer")
+library("pheatmap")
 
 ```
 
@@ -73,11 +77,10 @@ dim(rse_gene_SRP075398)
 
 ```
 
-El estudio **SRP068565** se compuso de **20 muestras**, para las cuales tenemos **63,856 genes** en GENCODE v26.
+El estudio **SRP075398** se compuso de **18 muestras**, para las cuales tenemos **63,856 genes** en GENCODE v26.
 La información específica de la anotación está disponible rowRanges() como se muestra a continuación con la columna gene_id utilizada para identificar genes en cada una de las anotaciones.
 
 ```{r}
-
 # Información sobre los genes
 rowRanges(rse_gene_SRP075398)
 ```
@@ -100,16 +103,11 @@ colData(rse_gene_SRP075398)[
   grepl("^sra_attribute", colnames(colData(rse_gene_SRP075398)))
 ]
 
-
-colnames(colData(rse_gene_SRP075398))
-
 ```
 
 ```{r}
 
 # Ajustar el tipo de dato de las variables
-## Pasar de character a factor
-
 rse_gene_SRP075398$sra_attribute.cell_line <- factor(rse_gene_SRP075398$sra_attribute.cell_line)
 
 rse_gene_SRP075398$sra_attribute.source_name <- factor(tolower(rse_gene_SRP075398$sra_attribute.source_name))
@@ -132,7 +130,6 @@ rse_gene_SRP075398$assigned_gene_prop <-
 
 # Resumen de la nueva variable
 summary(rse_gene_SRP075398$assigned_gene_prop)
-
 
 ```
 
@@ -182,32 +179,25 @@ dge
 ```{r}
 
 mod <- model.matrix(
-  ~ sra_attribute.cell_line * sra_attribute.transfection,
+  ~ sra_attribute.cell_line + sra_attribute.transfection + assigned_gene_prop,
   data = colData(rse_gene_SRP075398)
 )
 
 colnames(mod)
-
-# Simplificar nombres de la columna
-
-#colnames(mod) <- c("Intercept", "CellLine_MCF7", "Transfection_miR29a", 
-                   #"Transfection_miR29b1", "Interaction_MCF7_miR29a", 
-                   #"Interaction_MCF7_miR29b1")
+mod
 ```
 
-# Visualizar matriz (REVISAR ESTO AL FINAL)
+# Visualizar matriz
 
 ```{r}
-library(ExploreModelMatrix)
 
 ## Crear las visualizaciones
 vd <- ExploreModelMatrix::VisualizeDesign(
     sampleData = colData(rse_gene_SRP075398), # Metadatos de las muestras
-    designFormula = ~ sra_attribute.cell_line * sra_attribute.transfection,           # Fórmula del modelo
-    textSizeFitted = 1                       # Tamaño del texto
+    designFormula = ~ sra_attribute.cell_line + sra_attribute.transfection,   
+    textSizeFitted = 2
 )
 
-library(cowplot)
 cowplot::plot_grid(plotlist = vd$plotlist)
 
 ```
@@ -245,7 +235,7 @@ plotMA(eb_results, coef = 2)
 volcanoplot(eb_results, coef = 2, highlight = 3, names = de_results$gene_name)
 
 ## Información de los 3 genes más significativos 
-de_results[de_results$gene_name %in% c("AMIGO2", "APBB2", "LGALS3"), ]
+de_results[de_results$gene_name %in% c("AMIGO2", "AFAP1L2", "PHLDA1"), ]
 
 ```
 
@@ -264,7 +254,6 @@ df <- as.data.frame(colData(rse_gene_SRP075398)[, c("sra_attribute.cell_line", "
 colnames(df) <- c("Cell_line", "Transfection")
 
 ## Hagamos un heatmap
-library("pheatmap")
 pheatmap(
     exprs_heatmap,
     cluster_rows = TRUE,
@@ -278,9 +267,6 @@ pheatmap(
 ```{r}
 # MDS (multidimensional scaling)
 
-## Para colores
-library("RColorBrewer")
-
 ## Conviertiendo los grupos de Cell_line a colores
 col.group <- df$Cell_line
 levels(col.group) <- brewer.pal(nlevels(col.group), "Set1")
@@ -292,8 +278,6 @@ plotMDS(vGene$E, labels = df$Cell_line, col = col.group)
 
 
 ```{r}
-## Para colores
-library("RColorBrewer")
 
 ## Convertir Transfection a colores
 col.group <- df$Transfection

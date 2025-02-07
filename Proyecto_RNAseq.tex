@@ -126,15 +126,60 @@
 }
 \subsection{Introducción}\label{introducciuxf3n}
 
-\subsection{Instalar y cargas
-paquetes}\label{instalar-y-cargas-paquetes}
+El conjunto de datos analizado en este proyecto se deriva del estudio de
+Muluhngwi y Klinge (2021), que explora las interacciones regulatorias
+entre los miembros de la familia miR-29 y los lncRNAs (ARN largos no
+codificantes) en el contexto de la resistencia a la terapia endocrina.
+En este estudio, se aplicó el análisis de RNA-seq para investigar la
+expresión de lncRNAs regulados por miR-29b-1-3p y miR-29a-3p en células
+de cáncer de mama sensibles a la terapia endocrina (MCF-7) y resistentes
+a la terapia endocrina (LCC9). Estas líneas celulares fueron empleadas
+para estudiar los efectos de la regulación de lncRNAs por los
+miR-29b-1-3p y miR-29a-3p en la progresión del cáncer de mama y la
+resistencia endocrina. Para ello, se realizaron transfecciones en las
+células MCF-7 y LCC9 con pre-miR-29b-1-3p y pre-miR-29a-3p para evaluar
+los efectos de su sobreexpresión, mientras que el uso de anti-miR-29 y
+un control negativo permitió analizar la inhibición de estos miRNAs.
+Asimismo, se llevaron a cabo co-transfecciones combinando
+pre-miR-29b-1-3p o pre-miR-29a-3p con anti-miR-29 para examinar posibles
+efectos compensatorios en la regulación de los lncRNAs.
+
+\subsection{Instalación y carga de
+paquetes}\label{instalaciuxf3n-y-carga-de-paquetes}
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\CommentTok{\# Cargar el paquete de R que incluye a SummarizedExperiment y todas las demás dependencias}
+\CommentTok{\# Instalar BiocManager si no está instalado}
+\CommentTok{\#if (!requireNamespace("BiocManager", quietly = TRUE)) \{}
+\CommentTok{\#    install.packages("BiocManager")}
+\CommentTok{\#\}}
+
+\CommentTok{\# Instalar paquetes de Bioconductor}
+\CommentTok{\#BiocManager::install(}
+\CommentTok{\#    c(}
+\CommentTok{\#        "edgeR", }
+\CommentTok{\#        "ExploreModelMatrix",}
+\CommentTok{\#        "limma",}
+\CommentTok{\#        "recount3"}
+\CommentTok{\#    )}
+\CommentTok{\#)}
+
+\CommentTok{\# Instalar paquetes de CRAN}
+\CommentTok{\#install.packages(c(}
+\CommentTok{\#    "pheatmap", }
+\CommentTok{\#    "patchwork",}
+\CommentTok{\#    "RColorBrewer",}
+\CommentTok{\#    "cowplot"}
+\CommentTok{\#))}
+
+\DocumentationTok{\#\# Cargar los paquetes}
 \FunctionTok{library}\NormalTok{(}\StringTok{"recount3"}\NormalTok{)}
 \FunctionTok{library}\NormalTok{(}\StringTok{"limma"}\NormalTok{)}
 \FunctionTok{library}\NormalTok{(}\StringTok{"edgeR"}\NormalTok{)}
+\FunctionTok{library}\NormalTok{(}\StringTok{"ExploreModelMatrix"}\NormalTok{)}
+\FunctionTok{library}\NormalTok{(}\StringTok{"cowplot"}\NormalTok{)}
+\FunctionTok{library}\NormalTok{(}\StringTok{"RColorBrewer"}\NormalTok{)}
+\FunctionTok{library}\NormalTok{(}\StringTok{"pheatmap"}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
 
@@ -148,15 +193,15 @@ paquetes}\label{instalar-y-cargas-paquetes}
 \end{Shaded}
 
 \begin{verbatim}
-## 2025-02-05 23:17:32.411146 caching file sra.recount_project.MD.gz.
+## 2025-02-06 18:32:11.702399 caching file sra.recount_project.MD.gz.
 \end{verbatim}
 
 \begin{verbatim}
-## 2025-02-05 23:17:33.344082 caching file gtex.recount_project.MD.gz.
+## 2025-02-06 18:32:12.442418 caching file gtex.recount_project.MD.gz.
 \end{verbatim}
 
 \begin{verbatim}
-## 2025-02-05 23:17:33.948647 caching file tcga.recount_project.MD.gz.
+## 2025-02-06 18:32:13.029812 caching file tcga.recount_project.MD.gz.
 \end{verbatim}
 
 \begin{Shaded}
@@ -172,6 +217,9 @@ paquetes}\label{instalar-y-cargas-paquetes}
 
 \begin{Shaded}
 \begin{Highlighting}[]
+\CommentTok{\# Esto nos indica cuántos proyectos están disponibles (número de filas) }
+\CommentTok{\# y cuántas columnas de información se proporcionan para cada proyecto.}
+
 \CommentTok{\# Mostrar las primeras filas para inspeccionar su estructura y contenido}
 \FunctionTok{head}\NormalTok{(human\_projects)}
 \end{Highlighting}
@@ -207,7 +255,8 @@ paquetes}\label{instalar-y-cargas-paquetes}
 \NormalTok{  project }\SpecialCharTok{==} \StringTok{"SRP075398"} \SpecialCharTok{\&}\NormalTok{ project\_type }\SpecialCharTok{==} \StringTok{"data\_sources"}
 \NormalTok{)}
 
-\CommentTok{\# Mostrar la información del proyecto seleccionado para confirmar que se ha filtrado correctamente}
+\CommentTok{\# Mostrar la información del proyecto seleccionado para confirmar que se ha}
+\CommentTok{\# filtrado correctamente}
 \NormalTok{project\_info}
 \end{Highlighting}
 \end{Shaded}
@@ -225,47 +274,47 @@ paquetes}\label{instalar-y-cargas-paquetes}
 \end{Shaded}
 
 \begin{verbatim}
-## 2025-02-05 23:17:43.167174 downloading and reading the metadata.
+## 2025-02-06 18:32:21.216004 downloading and reading the metadata.
 \end{verbatim}
 
 \begin{verbatim}
-## 2025-02-05 23:17:43.979862 caching file sra.sra.SRP075398.MD.gz.
+## 2025-02-06 18:32:21.925683 caching file sra.sra.SRP075398.MD.gz.
 \end{verbatim}
 
 \begin{verbatim}
-## 2025-02-05 23:17:44.617157 caching file sra.recount_project.SRP075398.MD.gz.
+## 2025-02-06 18:32:22.518392 caching file sra.recount_project.SRP075398.MD.gz.
 \end{verbatim}
 
 \begin{verbatim}
-## 2025-02-05 23:17:45.267356 caching file sra.recount_qc.SRP075398.MD.gz.
+## 2025-02-06 18:32:23.079376 caching file sra.recount_qc.SRP075398.MD.gz.
 \end{verbatim}
 
 \begin{verbatim}
-## 2025-02-05 23:17:45.881848 caching file sra.recount_seq_qc.SRP075398.MD.gz.
+## 2025-02-06 18:32:23.790696 caching file sra.recount_seq_qc.SRP075398.MD.gz.
 \end{verbatim}
 
 \begin{verbatim}
-## 2025-02-05 23:17:46.502263 caching file sra.recount_pred.SRP075398.MD.gz.
+## 2025-02-06 18:32:24.482664 caching file sra.recount_pred.SRP075398.MD.gz.
 \end{verbatim}
 
 \begin{verbatim}
-## 2025-02-05 23:17:46.757173 downloading and reading the feature information.
+## 2025-02-06 18:32:24.727526 downloading and reading the feature information.
 \end{verbatim}
 
 \begin{verbatim}
-## 2025-02-05 23:17:47.242048 caching file human.gene_sums.G026.gtf.gz.
+## 2025-02-06 18:32:25.242203 caching file human.gene_sums.G026.gtf.gz.
 \end{verbatim}
 
 \begin{verbatim}
-## 2025-02-05 23:17:48.482346 downloading and reading the counts: 18 samples across 63856 features.
+## 2025-02-06 18:32:26.729366 downloading and reading the counts: 18 samples across 63856 features.
 \end{verbatim}
 
 \begin{verbatim}
-## 2025-02-05 23:17:49.052022 caching file sra.gene_sums.SRP075398.G026.gz.
+## 2025-02-06 18:32:27.353656 caching file sra.gene_sums.SRP075398.G026.gz.
 \end{verbatim}
 
 \begin{verbatim}
-## 2025-02-05 23:17:49.722031 constructing the RangedSummarizedExperiment (rse) object.
+## 2025-02-06 18:32:27.988332 constructing the RangedSummarizedExperiment (rse) object.
 \end{verbatim}
 
 \begin{Shaded}
@@ -297,7 +346,7 @@ paquetes}\label{instalar-y-cargas-paquetes}
 
 \begin{verbatim}
 ## $time_created
-## [1] "2025-02-05 23:17:49 CST"
+## [1] "2025-02-06 18:32:28 CST"
 ## 
 ## $recount3_version
 ##           package ondiskversion loadedversion
@@ -339,7 +388,7 @@ paquetes}\label{instalar-y-cargas-paquetes}
 ## [1] 63856    18
 \end{verbatim}
 
-El estudio \textbf{SRP068565} se compuso de \textbf{20 muestras}, para
+El estudio \textbf{SRP075398} se compuso de \textbf{18 muestras}, para
 las cuales tenemos \textbf{63,856 genes} en GENCODE v26. La información
 específica de la anotación está disponible rowRanges() como se muestra a
 continuación con la columna gene\_id utilizada para identificar genes en
@@ -417,6 +466,7 @@ cada una de las anotaciones.
 \CommentTok{\# Convertir las cuentas por nucleotido a cuentas por lectura usando compute\_read\_counts().}
 \FunctionTok{assay}\NormalTok{(rse\_gene\_SRP075398, }\StringTok{"counts"}\NormalTok{) }\OtherTok{\textless{}{-}} \FunctionTok{compute\_read\_counts}\NormalTok{(rse\_gene\_SRP075398)}
 
+\CommentTok{\# Inspeccionar la información experimental de cada muestra}
 \NormalTok{rse\_gene\_SRP075398}\SpecialCharTok{$}\NormalTok{sra.sample\_attributes[]}
 \end{Highlighting}
 \end{Shaded}
@@ -444,9 +494,10 @@ cada una de las anotaciones.
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\CommentTok{\# Hacer más fácil de usar la información del experimento}
+\CommentTok{\# Expandir los atributos en columnas separadas para facilitar su uso}
 \NormalTok{rse\_gene\_SRP075398 }\OtherTok{\textless{}{-}} \FunctionTok{expand\_sra\_attributes}\NormalTok{(rse\_gene\_SRP075398)}
 
+\CommentTok{\# Extraer y mostrar las columnas que contienen atributos }
 \FunctionTok{colData}\NormalTok{(rse\_gene\_SRP075398)[}
 \NormalTok{  ,}
   \FunctionTok{grepl}\NormalTok{(}\StringTok{"\^{}sra\_attribute"}\NormalTok{, }\FunctionTok{colnames}\NormalTok{(}\FunctionTok{colData}\NormalTok{(rse\_gene\_SRP075398)))}
@@ -486,195 +537,7 @@ cada una de las anotaciones.
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\FunctionTok{colnames}\NormalTok{(}\FunctionTok{colData}\NormalTok{(rse\_gene\_SRP075398))}
-\end{Highlighting}
-\end{Shaded}
-
-\begin{verbatim}
-##   [1] "rail_id"                                                           
-##   [2] "external_id"                                                       
-##   [3] "study"                                                             
-##   [4] "sra.sample_acc.x"                                                  
-##   [5] "sra.experiment_acc"                                                
-##   [6] "sra.submission_acc"                                                
-##   [7] "sra.submission_center"                                             
-##   [8] "sra.submission_lab"                                                
-##   [9] "sra.study_title"                                                   
-##  [10] "sra.study_abstract"                                                
-##  [11] "sra.study_description"                                             
-##  [12] "sra.experiment_title"                                              
-##  [13] "sra.design_description"                                            
-##  [14] "sra.sample_description"                                            
-##  [15] "sra.library_name"                                                  
-##  [16] "sra.library_strategy"                                              
-##  [17] "sra.library_source"                                                
-##  [18] "sra.library_selection"                                             
-##  [19] "sra.library_layout"                                                
-##  [20] "sra.paired_nominal_length"                                         
-##  [21] "sra.paired_nominal_stdev"                                          
-##  [22] "sra.library_construction_protocol"                                 
-##  [23] "sra.platform_model"                                                
-##  [24] "sra.sample_attributes"                                             
-##  [25] "sra.experiment_attributes"                                         
-##  [26] "sra.spot_length"                                                   
-##  [27] "sra.sample_name"                                                   
-##  [28] "sra.sample_title"                                                  
-##  [29] "sra.sample_bases"                                                  
-##  [30] "sra.sample_spots"                                                  
-##  [31] "sra.run_published"                                                 
-##  [32] "sra.size"                                                          
-##  [33] "sra.run_total_bases"                                               
-##  [34] "sra.run_total_spots"                                               
-##  [35] "sra.num_reads"                                                     
-##  [36] "sra.num_spots"                                                     
-##  [37] "sra.read_info"                                                     
-##  [38] "sra.run_alias"                                                     
-##  [39] "sra.run_center_name"                                               
-##  [40] "sra.run_broker_name"                                               
-##  [41] "sra.run_center"                                                    
-##  [42] "recount_project.project"                                           
-##  [43] "recount_project.organism"                                          
-##  [44] "recount_project.file_source"                                       
-##  [45] "recount_project.metadata_source"                                   
-##  [46] "recount_project.date_processed"                                    
-##  [47] "recount_qc.aligned_reads%.chrm"                                    
-##  [48] "recount_qc.aligned_reads%.chrx"                                    
-##  [49] "recount_qc.aligned_reads%.chry"                                    
-##  [50] "recount_qc.bc_auc.all_reads_all_bases"                             
-##  [51] "recount_qc.bc_auc.all_reads_annotated_bases"                       
-##  [52] "recount_qc.bc_auc.unique_reads_all_bases"                          
-##  [53] "recount_qc.bc_auc.unique_reads_annotated_bases"                    
-##  [54] "recount_qc.bc_auc.all_%"                                           
-##  [55] "recount_qc.bc_auc.unique_%"                                        
-##  [56] "recount_qc.bc_frag.count"                                          
-##  [57] "recount_qc.bc_frag.kallisto_count"                                 
-##  [58] "recount_qc.bc_frag.kallisto_mean_length"                           
-##  [59] "recount_qc.bc_frag.mean_length"                                    
-##  [60] "recount_qc.bc_frag.mode_length"                                    
-##  [61] "recount_qc.bc_frag.mode_length_count"                              
-##  [62] "recount_qc.exon_fc.all_%"                                          
-##  [63] "recount_qc.exon_fc.unique_%"                                       
-##  [64] "recount_qc.exon_fc_count_all.total"                                
-##  [65] "recount_qc.exon_fc_count_all.assigned"                             
-##  [66] "recount_qc.exon_fc_count_unique.total"                             
-##  [67] "recount_qc.exon_fc_count_unique.assigned"                          
-##  [68] "recount_qc.gene_fc.all_%"                                          
-##  [69] "recount_qc.gene_fc.unique_%"                                       
-##  [70] "recount_qc.gene_fc_count_all.total"                                
-##  [71] "recount_qc.gene_fc_count_all.assigned"                             
-##  [72] "recount_qc.gene_fc_count_unique.total"                             
-##  [73] "recount_qc.gene_fc_count_unique.assigned"                          
-##  [74] "recount_qc.intron_sum"                                             
-##  [75] "recount_qc.intron_sum_%"                                           
-##  [76] "recount_qc.star.%_of_chimeric_reads"                               
-##  [77] "recount_qc.star.%_of_chimeric_reads2"                              
-##  [78] "recount_qc.star.%_of_reads_mapped_to_multiple_loci"                
-##  [79] "recount_qc.star.%_of_reads_mapped_to_multiple_loci2"               
-##  [80] "recount_qc.star.%_of_reads_mapped_to_too_many_loci"                
-##  [81] "recount_qc.star.%_of_reads_mapped_to_too_many_loci2"               
-##  [82] "recount_qc.star.%_of_reads_unmapped:_other"                        
-##  [83] "recount_qc.star.%_of_reads_unmapped:_other2"                       
-##  [84] "recount_qc.star.%_of_reads_unmapped:_too_many_mismatches"          
-##  [85] "recount_qc.star.%_of_reads_unmapped:_too_many_mismatches2"         
-##  [86] "recount_qc.star.%_of_reads_unmapped:_too_short"                    
-##  [87] "recount_qc.star.%_of_reads_unmapped:_too_short2"                   
-##  [88] "recount_qc.star.all_mapped_reads"                                  
-##  [89] "recount_qc.star.all_mapped_reads2"                                 
-##  [90] "recount_qc.star.average_input_read_length"                         
-##  [91] "recount_qc.star.average_input_read_length2"                        
-##  [92] "recount_qc.star.average_mapped_length"                             
-##  [93] "recount_qc.star.average_mapped_length2"                            
-##  [94] "recount_qc.star.deletion_average_length"                           
-##  [95] "recount_qc.star.deletion_average_length2"                          
-##  [96] "recount_qc.star.deletion_rate_per_base"                            
-##  [97] "recount_qc.star.deletion_rate_per_base2"                           
-##  [98] "recount_qc.star.insertion_average_length"                          
-##  [99] "recount_qc.star.insertion_average_length2"                         
-## [100] "recount_qc.star.insertion_rate_per_base"                           
-## [101] "recount_qc.star.insertion_rate_per_base2"                          
-## [102] "recount_qc.star.mapping_speed,_million_of_reads_per_hour"          
-## [103] "recount_qc.star.mapping_speed,_million_of_reads_per_hour2"         
-## [104] "recount_qc.star.mismatch_rate_per_base,_%"                         
-## [105] "recount_qc.star.mismatch_rate_per_base,_%2"                        
-## [106] "recount_qc.star.number_of_chimeric_reads"                          
-## [107] "recount_qc.star.number_of_chimeric_reads2"                         
-## [108] "recount_qc.star.number_of_input_reads"                             
-## [109] "recount_qc.star.number_of_input_reads2"                            
-## [110] "recount_qc.star.number_of_reads_mapped_to_multiple_loci"           
-## [111] "recount_qc.star.number_of_reads_mapped_to_multiple_loci2"          
-## [112] "recount_qc.star.number_of_reads_mapped_to_too_many_loci"           
-## [113] "recount_qc.star.number_of_reads_mapped_to_too_many_loci2"          
-## [114] "recount_qc.star.number_of_reads_unmapped:_other"                   
-## [115] "recount_qc.star.number_of_reads_unmapped:_other2"                  
-## [116] "recount_qc.star.number_of_reads_unmapped:_too_many_mismatches"     
-## [117] "recount_qc.star.number_of_reads_unmapped:_too_many_mismatches2"    
-## [118] "recount_qc.star.number_of_reads_unmapped:_too_short"               
-## [119] "recount_qc.star.number_of_reads_unmapped:_too_short2"              
-## [120] "recount_qc.star.number_of_splices:_at/ac"                          
-## [121] "recount_qc.star.number_of_splices:_at/ac2"                         
-## [122] "recount_qc.star.number_of_splices:_annotated_(sjdb)"               
-## [123] "recount_qc.star.number_of_splices:_annotated_(sjdb)2"              
-## [124] "recount_qc.star.number_of_splices:_gc/ag"                          
-## [125] "recount_qc.star.number_of_splices:_gc/ag2"                         
-## [126] "recount_qc.star.number_of_splices:_gt/ag"                          
-## [127] "recount_qc.star.number_of_splices:_gt/ag2"                         
-## [128] "recount_qc.star.number_of_splices:_non-canonical"                  
-## [129] "recount_qc.star.number_of_splices:_non-canonical2"                 
-## [130] "recount_qc.star.number_of_splices:_total"                          
-## [131] "recount_qc.star.number_of_splices:_total2"                         
-## [132] "recount_qc.star.uniquely_mapped_reads_%"                           
-## [133] "recount_qc.star.uniquely_mapped_reads_%2"                          
-## [134] "recount_qc.star.uniquely_mapped_reads_number"                      
-## [135] "recount_qc.star.uniquely_mapped_reads_number2"                     
-## [136] "recount_qc.junction_count"                                         
-## [137] "recount_qc.junction_coverage"                                      
-## [138] "recount_qc.junction_avg_coverage"                                  
-## [139] "recount_qc.star.number_of_input_reads_both"                        
-## [140] "recount_qc.star.all_mapped_reads_both"                             
-## [141] "recount_qc.star.number_of_chimeric_reads_both"                     
-## [142] "recount_qc.star.number_of_reads_mapped_to_multiple_loci_both"      
-## [143] "recount_qc.star.number_of_reads_mapped_to_too_many_loci_both"      
-## [144] "recount_qc.star.number_of_reads_unmapped:_other_both"              
-## [145] "recount_qc.star.number_of_reads_unmapped:_too_many_mismatches_both"
-## [146] "recount_qc.star.number_of_reads_unmapped:_too_short_both"          
-## [147] "recount_qc.star.uniquely_mapped_reads_number_both"                 
-## [148] "recount_qc.star.%_mapped_reads_both"                               
-## [149] "recount_qc.star.%_chimeric_reads_both"                             
-## [150] "recount_qc.star.%_reads_mapped_to_multiple_loci_both"              
-## [151] "recount_qc.star.%_reads_mapped_to_too_many_loci_both"              
-## [152] "recount_qc.star.%_reads_unmapped:_other_both"                      
-## [153] "recount_qc.star.%_reads_unmapped:_too_many_mismatches_both"        
-## [154] "recount_qc.star.%_reads_unmapped:_too_short_both"                  
-## [155] "recount_qc.star.uniquely_mapped_reads_%_both"                      
-## [156] "recount_seq_qc.min_len"                                            
-## [157] "recount_seq_qc.max_len"                                            
-## [158] "recount_seq_qc.avg_len"                                            
-## [159] "recount_seq_qc.#distinct_quality_values"                           
-## [160] "recount_seq_qc.#bases"                                             
-## [161] "recount_seq_qc.%a"                                                 
-## [162] "recount_seq_qc.%c"                                                 
-## [163] "recount_seq_qc.%g"                                                 
-## [164] "recount_seq_qc.%t"                                                 
-## [165] "recount_seq_qc.%n"                                                 
-## [166] "recount_seq_qc.avgq"                                               
-## [167] "recount_seq_qc.errq"                                               
-## [168] "recount_pred.sample_acc.y"                                         
-## [169] "recount_pred.curated.type"                                         
-## [170] "recount_pred.curated.tissue"                                       
-## [171] "recount_pred.pattern.predict.type"                                 
-## [172] "recount_pred.pred.type"                                            
-## [173] "recount_pred.curated.cell_type"                                    
-## [174] "recount_pred.curated.cell_line"                                    
-## [175] "BigWigURL"                                                         
-## [176] "sra_attribute.cell_line"                                           
-## [177] "sra_attribute.source_name"                                         
-## [178] "sra_attribute.transfection"
-\end{verbatim}
-
-\begin{Shaded}
-\begin{Highlighting}[]
-\CommentTok{\# Ajustar el tipo de dato de las variables}
-\DocumentationTok{\#\# Pasar de character a factor}
+\CommentTok{\# Ajustar el tipo de dato de las variables categóricas }
 
 \NormalTok{rse\_gene\_SRP075398}\SpecialCharTok{$}\NormalTok{sra\_attribute.cell\_line }\OtherTok{\textless{}{-}} \FunctionTok{factor}\NormalTok{(rse\_gene\_SRP075398}\SpecialCharTok{$}\NormalTok{sra\_attribute.cell\_line)}
 
@@ -682,7 +545,7 @@ cada una de las anotaciones.
 
 \NormalTok{rse\_gene\_SRP075398}\SpecialCharTok{$}\NormalTok{sra\_attribute.transfection }\OtherTok{\textless{}{-}} \FunctionTok{factor}\NormalTok{(rse\_gene\_SRP075398}\SpecialCharTok{$}\NormalTok{sra\_attribute.transfection)}
 
-\CommentTok{\# Resumen de las variables}
+\CommentTok{\# Resumen estadístico de las variables seleccionadas}
 \FunctionTok{summary}\NormalTok{(}\FunctionTok{as.data.frame}\NormalTok{(}\FunctionTok{colData}\NormalTok{(rse\_gene\_SRP075398)[}
 \NormalTok{    ,}
     \FunctionTok{grepl}\NormalTok{(}\StringTok{"\^{}sra\_attribute.[cell\_line|source\_name|transfection]"}\NormalTok{, }\FunctionTok{colnames}\NormalTok{(}\FunctionTok{colData}\NormalTok{(rse\_gene\_SRP075398)))}
@@ -709,12 +572,13 @@ cada una de las anotaciones.
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\CommentTok{\# Calcular la proporción de lecturas asignadas a genes}
+\CommentTok{\# Calcular la proporción de lecturas asignadas a genes para evaluar la calidad de las muestras}
 \NormalTok{rse\_gene\_SRP075398}\SpecialCharTok{$}\NormalTok{assigned\_gene\_prop }\OtherTok{\textless{}{-}} 
 \NormalTok{  rse\_gene\_SRP075398}\SpecialCharTok{$}\NormalTok{recount\_qc.gene\_fc\_count\_all.assigned }\SpecialCharTok{/} 
 \NormalTok{  rse\_gene\_SRP075398}\SpecialCharTok{$}\NormalTok{recount\_qc.gene\_fc\_count\_all.total}
 
-\CommentTok{\# Resumen de la nueva variable}
+\CommentTok{\# Resumen de la nueva variable para identificar si las muestras tienen una asignación adecuada de lecturas (valores cercanos a 1 son indicadores de buena calidad)}
+
 \FunctionTok{summary}\NormalTok{(rse\_gene\_SRP075398}\SpecialCharTok{$}\NormalTok{assigned\_gene\_prop)}
 \end{Highlighting}
 \end{Shaded}
@@ -732,8 +596,11 @@ expresión}\label{filtrar-genes-de-baja-expresiuxf3n}
 \CommentTok{\# Guardar el objeto original}
 \NormalTok{rse\_gene\_SRP075398\_unfiltered }\OtherTok{\textless{}{-}}\NormalTok{ rse\_gene\_SRP075398}
 
-\CommentTok{\# Filtrar muestras de baja calidad}
-\FunctionTok{hist}\NormalTok{(rse\_gene\_SRP075398}\SpecialCharTok{$}\NormalTok{assigned\_gene\_prop)}
+\CommentTok{\# Visualizar la distribución de la proporción de lecturas asignadas a genes en cada muestra}
+
+\FunctionTok{hist}\NormalTok{(rse\_gene\_SRP075398}\SpecialCharTok{$}\NormalTok{assigned\_gene\_prop, }
+     \AttributeTok{main =} \StringTok{"Proporción de lecturas asignadas a genes"}\NormalTok{, }
+     \AttributeTok{xlab =} \StringTok{"Proporción asignada"}\NormalTok{, }\AttributeTok{col =} \StringTok{"lightblue"}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
 
@@ -741,6 +608,7 @@ expresión}\label{filtrar-genes-de-baja-expresiuxf3n}
 
 \begin{Shaded}
 \begin{Highlighting}[]
+\CommentTok{\# Verificar si existen muestras de baja calidad antes del filtrado}
 \FunctionTok{table}\NormalTok{(rse\_gene\_SRP075398}\SpecialCharTok{$}\NormalTok{assigned\_gene\_prop }\SpecialCharTok{\textless{}} \FloatTok{0.3}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
@@ -753,11 +621,17 @@ expresión}\label{filtrar-genes-de-baja-expresiuxf3n}
 
 \begin{Shaded}
 \begin{Highlighting}[]
+\CommentTok{\# Filtrar las muestras con proporción de lecturas asignadas superior a 0.3}
 \NormalTok{rse\_gene\_SRP075398 }\OtherTok{\textless{}{-}}\NormalTok{ rse\_gene\_SRP075398[, rse\_gene\_SRP075398}\SpecialCharTok{$}\NormalTok{assigned\_gene\_prop }\SpecialCharTok{\textgreater{}} \FloatTok{0.3}\NormalTok{]}
 
-\CommentTok{\# Filtrar genes de baja expresión usando edgeR}
+\CommentTok{\# Crear un objeto DGEList, para el análisis diferencial usando edgeR}
 \NormalTok{dge }\OtherTok{\textless{}{-}} \FunctionTok{DGEList}\NormalTok{(}\AttributeTok{counts =} \FunctionTok{assay}\NormalTok{(rse\_gene\_SRP075398, }\StringTok{"counts"}\NormalTok{))}
-\NormalTok{keep }\OtherTok{\textless{}{-}} \FunctionTok{filterByExpr}\NormalTok{(dge, }\AttributeTok{group =}\NormalTok{ rse\_gene\_SRP075398}\SpecialCharTok{$}\NormalTok{sra\_attribute.transfection)}
+
+\CommentTok{\# Filtrar genes de baja expresión considerando combinaciones de transfección y línea celular}
+\NormalTok{keep }\OtherTok{\textless{}{-}} \FunctionTok{filterByExpr}\NormalTok{(dge, }\AttributeTok{group =} \FunctionTok{interaction}\NormalTok{(}
+\NormalTok{  rse\_gene\_SRP075398}\SpecialCharTok{$}\NormalTok{sra\_attribute.transfection, }
+\NormalTok{  rse\_gene\_SRP075398}\SpecialCharTok{$}\NormalTok{sra\_attribute.cell\_line}
+\NormalTok{))}
 \NormalTok{rse\_gene\_SRP075398 }\OtherTok{\textless{}{-}}\NormalTok{ rse\_gene\_SRP075398[keep, ]}
 
 \CommentTok{\# Dimensiones finales}
@@ -766,7 +640,7 @@ expresión}\label{filtrar-genes-de-baja-expresiuxf3n}
 \end{Shaded}
 
 \begin{verbatim}
-## [1] 22789    18
+## [1] 23741    18
 \end{verbatim}
 
 \begin{Shaded}
@@ -777,8 +651,13 @@ expresión}\label{filtrar-genes-de-baja-expresiuxf3n}
 \end{Shaded}
 
 \begin{verbatim}
-## [1] 35.69
+## [1] 37.18
 \end{verbatim}
+
+Se descartó los genes de baja expresión porque no contribuyen
+significativamente a las conclusiones biológicas. De modo que, después
+del filtrado se obtuvieron 23741 lo cual representa el 37.18\% de genes
+retenidos.
 
 \subsection{Normalización de los
 datos}\label{normalizaciuxf3n-de-los-datos}
@@ -805,35 +684,35 @@ datos}\label{normalizaciuxf3n-de-los-datos}
 ## ENSG00000223972.5         44         31         54         44         62
 ## ENSG00000227232.5        297        264        405        352        242
 ## ENSG00000238009.6         32         27         19         32         20
+## ENSG00000233750.3         10         15          6          1          9
 ## ENSG00000268903.1         17          7          9          6         17
-## ENSG00000269981.1         14         19         25         23         16
 ##                   SRR3544530 SRR3544531 SRR3544532 SRR3544533 SRR3544538
 ## ENSG00000223972.5         37         51         13         18         16
 ## ENSG00000227232.5        215        277        200        204        245
 ## ENSG00000238009.6         15         25         19         30         48
+## ENSG00000233750.3          7          9         13          9         14
 ## ENSG00000268903.1          6         13          8          3          4
-## ENSG00000269981.1         12         34         20         22         25
 ##                   SRR3544539 SRR3544523 SRR3544524 SRR3544534 SRR3544535
 ## ENSG00000223972.5         13         71         52         10         11
 ## ENSG00000227232.5        105        509        353        217        123
 ## ENSG00000238009.6         23         45         28         26         31
+## ENSG00000233750.3          3         16          7          8          3
 ## ENSG00000268903.1          1         35         24          0          4
-## ENSG00000269981.1         10         37         33         17         10
 ##                   SRR3544536 SRR3544537 SRR3544540
 ## ENSG00000223972.5          7          9         25
 ## ENSG00000227232.5         74        163        183
 ## ENSG00000238009.6         32         27         45
+## ENSG00000233750.3          8          3          6
 ## ENSG00000268903.1          0          2          3
-## ENSG00000269981.1          6         13         26
-## 22784 more rows ...
+## 23736 more rows ...
 ## 
 ## $samples
 ##            group lib.size norm.factors
-## SRR3544525     1 40704527    1.0515272
-## SRR3544526     1 44710538    1.0305267
-## SRR3544527     1 55789726    0.9938596
-## SRR3544528     1 61289070    1.0017792
-## SRR3544529     1 34508615    1.0395402
+## SRR3544525     1 40711468    1.0516143
+## SRR3544526     1 44717701    1.0300052
+## SRR3544527     1 55798559    0.9927744
+## SRR3544528     1 61298574    0.9995922
+## SRR3544529     1 34513836    1.0385196
 ## 13 more rows ...
 ## 
 ## $genes
@@ -841,21 +720,21 @@ datos}\label{normalizaciuxf3n-de-los-datos}
 ## ENSG00000223972.5 HAVANA gene      1735    NA ENSG00000223972.5
 ## ENSG00000227232.5 HAVANA gene      1351    NA ENSG00000227232.5
 ## ENSG00000238009.6 HAVANA gene      3726    NA ENSG00000238009.6
+## ENSG00000233750.3 HAVANA gene      3812    NA ENSG00000233750.3
 ## ENSG00000268903.1 HAVANA gene       755    NA ENSG00000268903.1
-## ENSG00000269981.1 HAVANA gene       284    NA ENSG00000269981.1
 ##                                            gene_type     gene_name level
 ## ENSG00000223972.5 transcribed_unprocessed_pseudogene       DDX11L1     2
 ## ENSG00000227232.5             unprocessed_pseudogene        WASH7P     2
 ## ENSG00000238009.6                            lincRNA  RP11-34P13.7     2
+## ENSG00000233750.3               processed_pseudogene        CICP27     1
 ## ENSG00000268903.1               processed_pseudogene RP11-34P13.15     2
-## ENSG00000269981.1               processed_pseudogene RP11-34P13.16     2
 ##                            havana_gene               tag
 ## ENSG00000223972.5 OTTHUMG00000000961.2              <NA>
 ## ENSG00000227232.5 OTTHUMG00000000958.1              <NA>
 ## ENSG00000238009.6 OTTHUMG00000001096.2 overlapping_locus
+## ENSG00000233750.3 OTTHUMG00000001257.3    pseudo_consens
 ## ENSG00000268903.1 OTTHUMG00000182518.2              <NA>
-## ENSG00000269981.1 OTTHUMG00000182738.2              <NA>
-## 22784 more rows ...
+## 23736 more rows ...
 \end{verbatim}
 
 \subsection{Determinar el modelo
@@ -863,59 +742,129 @@ estadístico}\label{determinar-el-modelo-estaduxedstico}
 
 \begin{Shaded}
 \begin{Highlighting}[]
+\CommentTok{\# Construcción de la matriz de diseño para el modelo lineal.}
 \NormalTok{mod }\OtherTok{\textless{}{-}} \FunctionTok{model.matrix}\NormalTok{(}
-  \SpecialCharTok{\textasciitilde{}}\NormalTok{ sra\_attribute.cell\_line }\SpecialCharTok{*}\NormalTok{ sra\_attribute.transfection,}
+  \SpecialCharTok{\textasciitilde{}}\NormalTok{ sra\_attribute.cell\_line }\SpecialCharTok{+}\NormalTok{ sra\_attribute.transfection }\SpecialCharTok{+}\NormalTok{ assigned\_gene\_prop,}
   \AttributeTok{data =} \FunctionTok{colData}\NormalTok{(rse\_gene\_SRP075398)}
 \NormalTok{)}
 
+\CommentTok{\# Cada columna representa un coeficiente del modelo}
 \FunctionTok{colnames}\NormalTok{(mod)}
 \end{Highlighting}
 \end{Shaded}
 
 \begin{verbatim}
-## [1] "(Intercept)"                                                         
-## [2] "sra_attribute.cell_lineMCF-7"                                        
-## [3] "sra_attribute.transfectionPre-miR-29a"                               
-## [4] "sra_attribute.transfectionPre-miR-29b-1"                             
-## [5] "sra_attribute.cell_lineMCF-7:sra_attribute.transfectionPre-miR-29a"  
-## [6] "sra_attribute.cell_lineMCF-7:sra_attribute.transfectionPre-miR-29b-1"
+## [1] "(Intercept)"                            
+## [2] "sra_attribute.cell_lineMCF-7"           
+## [3] "sra_attribute.transfectionPre-miR-29a"  
+## [4] "sra_attribute.transfectionPre-miR-29b-1"
+## [5] "assigned_gene_prop"
 \end{verbatim}
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\CommentTok{\# Simplificar nombres de la columna}
-
-\CommentTok{\#colnames(mod) \textless{}{-} c("Intercept", "CellLine\_MCF7", "Transfection\_miR29a", }
-                   \CommentTok{\#"Transfection\_miR29b1", "Interaction\_MCF7\_miR29a", }
-                   \CommentTok{\#"Interaction\_MCF7\_miR29b1")}
+\CommentTok{\# Visualizar la matriz de diseño completa}
+\CommentTok{\# Las filas representan muestras, mientras que las columnas son las variables del modelo}
+\NormalTok{mod}
 \end{Highlighting}
 \end{Shaded}
 
-\section{Visualizar matriz (REVISAR ESTO AL
-FINAL)}\label{visualizar-matriz-revisar-esto-al-final}
+\begin{verbatim}
+##            (Intercept) sra_attribute.cell_lineMCF-7
+## SRR3544525           1                            0
+## SRR3544526           1                            0
+## SRR3544527           1                            0
+## SRR3544528           1                            0
+## SRR3544529           1                            0
+## SRR3544530           1                            0
+## SRR3544531           1                            0
+## SRR3544532           1                            1
+## SRR3544533           1                            1
+## SRR3544538           1                            1
+## SRR3544539           1                            1
+## SRR3544523           1                            0
+## SRR3544524           1                            0
+## SRR3544534           1                            1
+## SRR3544535           1                            1
+## SRR3544536           1                            1
+## SRR3544537           1                            1
+## SRR3544540           1                            1
+##            sra_attribute.transfectionPre-miR-29a
+## SRR3544525                                     0
+## SRR3544526                                     0
+## SRR3544527                                     0
+## SRR3544528                                     0
+## SRR3544529                                     1
+## SRR3544530                                     1
+## SRR3544531                                     1
+## SRR3544532                                     0
+## SRR3544533                                     0
+## SRR3544538                                     1
+## SRR3544539                                     1
+## SRR3544523                                     0
+## SRR3544524                                     0
+## SRR3544534                                     0
+## SRR3544535                                     0
+## SRR3544536                                     0
+## SRR3544537                                     0
+## SRR3544540                                     1
+##            sra_attribute.transfectionPre-miR-29b-1 assigned_gene_prop
+## SRR3544525                                       1          0.6075824
+## SRR3544526                                       0          0.6587443
+## SRR3544527                                       0          0.6946650
+## SRR3544528                                       0          0.7017052
+## SRR3544529                                       0          0.6617664
+## SRR3544530                                       0          0.6664334
+## SRR3544531                                       0          0.6554926
+## SRR3544532                                       1          0.6359671
+## SRR3544533                                       1          0.6320064
+## SRR3544538                                       0          0.6623243
+## SRR3544539                                       0          0.6705981
+## SRR3544523                                       1          0.6586547
+## SRR3544524                                       1          0.6286454
+## SRR3544534                                       1          0.6352978
+## SRR3544535                                       0          0.6539348
+## SRR3544536                                       0          0.6907278
+## SRR3544537                                       0          0.6651556
+## SRR3544540                                       0          0.6725733
+## attr(,"assign")
+## [1] 0 1 2 2 3
+## attr(,"contrasts")
+## attr(,"contrasts")$sra_attribute.cell_line
+## [1] "contr.treatment"
+## 
+## attr(,"contrasts")$sra_attribute.transfection
+## [1] "contr.treatment"
+\end{verbatim}
+
+Este modelo incluye: - sra\_attribute.cell\_line: Efecto del tipo de
+línea celular (LCC9 o MCF-7). - sra\_attribute.transfection: Efecto del
+tratamiento por transfección (pre-miR-29a, pre-miR-29b-1, Anti-miR-29a).
+- assigned\_gene\_prop: Proporción de lecturas asignadas a genes
+
+\subsection{Visualizar matriz}\label{visualizar-matriz}
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\FunctionTok{library}\NormalTok{(ExploreModelMatrix)}
-
 \DocumentationTok{\#\# Crear las visualizaciones}
 \NormalTok{vd }\OtherTok{\textless{}{-}}\NormalTok{ ExploreModelMatrix}\SpecialCharTok{::}\FunctionTok{VisualizeDesign}\NormalTok{(}
     \AttributeTok{sampleData =} \FunctionTok{colData}\NormalTok{(rse\_gene\_SRP075398), }\CommentTok{\# Metadatos de las muestras}
-    \AttributeTok{designFormula =} \SpecialCharTok{\textasciitilde{}}\NormalTok{ sra\_attribute.cell\_line }\SpecialCharTok{*}\NormalTok{ sra\_attribute.transfection,           }\CommentTok{\# Fórmula del modelo}
-    \AttributeTok{textSizeFitted =} \DecValTok{1}                       \CommentTok{\# Tamaño del texto}
+    \AttributeTok{designFormula =} \SpecialCharTok{\textasciitilde{}}\NormalTok{ sra\_attribute.cell\_line }\SpecialCharTok{+}\NormalTok{ sra\_attribute.transfection,   }
+    \AttributeTok{textSizeFitted =} \DecValTok{2}
 \NormalTok{)}
 
-\FunctionTok{library}\NormalTok{(cowplot)}
 \NormalTok{cowplot}\SpecialCharTok{::}\FunctionTok{plot\_grid}\NormalTok{(}\AttributeTok{plotlist =}\NormalTok{ vd}\SpecialCharTok{$}\NormalTok{plotlist)}
 \end{Highlighting}
 \end{Shaded}
 
 \includegraphics{Proyecto_RNAseq_files/figure-latex/unnamed-chunk-11-1.pdf}
 
-\section{Expresión diferencial}\label{expresiuxf3n-diferencial}
+\subsection{Expresión diferencial}\label{expresiuxf3n-diferencial}
 
 \begin{Shaded}
 \begin{Highlighting}[]
+\CommentTok{\# Convertir los datos de conteo a valores log2 y ajusta las varianzas para hacerlos aptos para un análisis lineal }
+
 \NormalTok{vGene }\OtherTok{\textless{}{-}} \FunctionTok{voom}\NormalTok{(dge, mod, }\AttributeTok{plot =} \ConstantTok{TRUE}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
@@ -927,9 +876,11 @@ FINAL)}\label{visualizar-matriz-revisar-esto-al-final}
 \CommentTok{\# Ajuste del modelo lineal y cálculo de estadísticas empíricas de Bayes}
 \NormalTok{eb\_results }\OtherTok{\textless{}{-}} \FunctionTok{eBayes}\NormalTok{(}\FunctionTok{lmFit}\NormalTok{(vGene))}
 
+
+\CommentTok{\# Extraer la tabla de genes diferencialmente expresados.}
 \NormalTok{de\_results }\OtherTok{\textless{}{-}} \FunctionTok{topTable}\NormalTok{(}
 \NormalTok{    eb\_results,}
-    \AttributeTok{coef =} \DecValTok{2}\NormalTok{,}
+    \AttributeTok{coef =} \DecValTok{2}\NormalTok{, }\CommentTok{\# Se refiere al coeficiente del segundo término en el modelo}
     \AttributeTok{number =} \FunctionTok{nrow}\NormalTok{(rse\_gene\_SRP075398),}
     \AttributeTok{sort.by =} \StringTok{"none"}
 \NormalTok{)}
@@ -940,7 +891,7 @@ FINAL)}\label{visualizar-matriz-revisar-esto-al-final}
 \end{Shaded}
 
 \begin{verbatim}
-## [1] 22789    16
+## [1] 23741    16
 \end{verbatim}
 
 \begin{Shaded}
@@ -954,35 +905,35 @@ FINAL)}\label{visualizar-matriz-revisar-esto-al-final}
 ## ENSG00000223972.5 HAVANA gene      1735    NA ENSG00000223972.5
 ## ENSG00000227232.5 HAVANA gene      1351    NA ENSG00000227232.5
 ## ENSG00000238009.6 HAVANA gene      3726    NA ENSG00000238009.6
+## ENSG00000233750.3 HAVANA gene      3812    NA ENSG00000233750.3
 ## ENSG00000268903.1 HAVANA gene       755    NA ENSG00000268903.1
 ## ENSG00000269981.1 HAVANA gene       284    NA ENSG00000269981.1
-## ENSG00000239906.1 HAVANA gene       323    NA ENSG00000239906.1
 ##                                            gene_type     gene_name level
 ## ENSG00000223972.5 transcribed_unprocessed_pseudogene       DDX11L1     2
 ## ENSG00000227232.5             unprocessed_pseudogene        WASH7P     2
 ## ENSG00000238009.6                            lincRNA  RP11-34P13.7     2
+## ENSG00000233750.3               processed_pseudogene        CICP27     1
 ## ENSG00000268903.1               processed_pseudogene RP11-34P13.15     2
 ## ENSG00000269981.1               processed_pseudogene RP11-34P13.16     2
-## ENSG00000239906.1                          antisense RP11-34P13.14     2
-##                            havana_gene               tag      logFC    AveExpr
-## ENSG00000223972.5 OTTHUMG00000000961.2              <NA> -1.6682397 -0.7347566
-## ENSG00000227232.5 OTTHUMG00000000958.1              <NA> -1.0300576  2.4023283
-## ENSG00000238009.6 OTTHUMG00000001096.2 overlapping_locus  0.7712042 -0.5755998
-## ENSG00000268903.1 OTTHUMG00000182518.2              <NA> -1.6043444 -2.9389997
-## ENSG00000269981.1 OTTHUMG00000182738.2              <NA> -0.6971305 -1.1724133
-## ENSG00000239906.1 OTTHUMG00000002481.1              <NA>  1.5168961 -0.5286964
-##                           t      P.Value    adj.P.Val          B
-## ENSG00000223972.5 -4.947936 0.0001334750 0.0002696371  0.8157153
-## ENSG00000227232.5 -4.097809 0.0007946777 0.0013918923 -1.7013844
-## ENSG00000238009.6  3.158990 0.0059046617 0.0088550498 -3.1137314
-## ENSG00000268903.1 -1.811961 0.0882499498 0.1089038883 -4.9948247
-## ENSG00000269981.1 -1.625628 0.1229935089 0.1480665121 -5.6956305
-## ENSG00000239906.1  3.957787 0.0010712285 0.0018297276 -1.3144976
+##                            havana_gene               tag       logFC    AveExpr
+## ENSG00000223972.5 OTTHUMG00000000961.2              <NA> -1.57964773 -0.7349755
+## ENSG00000227232.5 OTTHUMG00000000958.1              <NA> -0.65730720  2.4021094
+## ENSG00000238009.6 OTTHUMG00000001096.2 overlapping_locus  0.50892797 -0.5758187
+## ENSG00000233750.3 OTTHUMG00000001257.3    pseudo_consens  0.07505824 -2.5024602
+## ENSG00000268903.1 OTTHUMG00000182518.2              <NA> -2.26677866 -2.9392186
+## ENSG00000269981.1 OTTHUMG00000182738.2              <NA> -0.20655991 -1.1726322
+##                            t      P.Value    adj.P.Val         B
+## ENSG00000223972.5 -9.0583130 5.502604e-08 1.724585e-07  8.293369
+## ENSG00000227232.5 -4.2492998 5.203366e-04 8.224575e-04 -1.699547
+## ENSG00000238009.6  3.2989311 4.153389e-03 5.833271e-03 -3.230385
+## ENSG00000233750.3  0.2097501 8.363087e-01 8.516989e-01 -7.250773
+## ENSG00000268903.1 -4.8120051 1.545050e-04 2.624197e-04  0.559485
+## ENSG00000269981.1 -0.8707765 3.957782e-01 4.289509e-01 -7.156075
 \end{verbatim}
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\DocumentationTok{\#\# Genes diferencialmente expresados con FDR \textless{} 5\%}
+\CommentTok{\# Genes diferencialmente expresados con FDR \textless{} 5\%}
 \FunctionTok{table}\NormalTok{(de\_results}\SpecialCharTok{$}\NormalTok{adj.P.Val }\SpecialCharTok{\textless{}} \FloatTok{0.05}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
@@ -990,12 +941,12 @@ FINAL)}\label{visualizar-matriz-revisar-esto-al-final}
 \begin{verbatim}
 ## 
 ## FALSE  TRUE 
-##  5408 17381
+##  4642 19099
 \end{verbatim}
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\DocumentationTok{\#\# Visualizar los resultados estadísticos}
+\CommentTok{\# Visualizar los resultados estadísticos}
 
 \FunctionTok{plotMA}\NormalTok{(eb\_results, }\AttributeTok{coef =} \DecValTok{2}\NormalTok{)}
 \end{Highlighting}
@@ -1013,46 +964,44 @@ FINAL)}\label{visualizar-matriz-revisar-esto-al-final}
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\DocumentationTok{\#\# Información de los 3 genes más significativos }
-\NormalTok{de\_results[de\_results}\SpecialCharTok{$}\NormalTok{gene\_name }\SpecialCharTok{\%in\%} \FunctionTok{c}\NormalTok{(}\StringTok{"AMIGO2"}\NormalTok{, }\StringTok{"APBB2"}\NormalTok{, }\StringTok{"LGALS3"}\NormalTok{), ]}
+\CommentTok{\# Información de los 3 genes más significativos }
+\NormalTok{de\_results[de\_results}\SpecialCharTok{$}\NormalTok{gene\_name }\SpecialCharTok{\%in\%} \FunctionTok{c}\NormalTok{(}\StringTok{"AMIGO2"}\NormalTok{, }\StringTok{"AFAP1L2"}\NormalTok{, }\StringTok{"PHLDA1"}\NormalTok{), ]}
 \end{Highlighting}
 \end{Shaded}
 
 \begin{verbatim}
 ##                    source type bp_length phase            gene_id
+## ENSG00000169129.14 HAVANA gene      5789    NA ENSG00000169129.14
 ## ENSG00000139211.6  HAVANA gene      3956    NA  ENSG00000139211.6
-## ENSG00000131981.15 HAVANA gene      2397    NA ENSG00000131981.15
-## ENSG00000163697.16 HAVANA gene     12956    NA ENSG00000163697.16
-##                         gene_type gene_name level           havana_gene
-## ENSG00000139211.6  protein_coding    AMIGO2     2  OTTHUMG00000169616.1
-## ENSG00000131981.15 protein_coding    LGALS3     1  OTTHUMG00000171030.4
-## ENSG00000163697.16 protein_coding     APBB2     2 OTTHUMG00000160416.11
-##                           tag    logFC  AveExpr        t      P.Value
-## ENSG00000139211.6        <NA> 6.619379 6.044395 88.02985 1.804171e-23
-## ENSG00000131981.15       <NA> 7.844704 4.895663 60.85097 7.793307e-21
-## ENSG00000163697.16 ncRNA_host 7.492499 4.501818 65.39220 2.390532e-21
-##                       adj.P.Val        B
-## ENSG00000139211.6  4.111525e-19 42.91918
-## ENSG00000131981.15 5.145767e-17 36.96864
-## ENSG00000163697.16 2.723892e-17 37.95833
+## ENSG00000139289.13 HAVANA gene      8069    NA ENSG00000139289.13
+##                         gene_type gene_name level          havana_gene  tag
+## ENSG00000169129.14 protein_coding   AFAP1L2     2 OTTHUMG00000019086.3 <NA>
+## ENSG00000139211.6  protein_coding    AMIGO2     2 OTTHUMG00000169616.1 <NA>
+## ENSG00000139289.13 protein_coding    PHLDA1     2 OTTHUMG00000169783.2 <NA>
+##                        logFC  AveExpr         t      P.Value    adj.P.Val
+## ENSG00000169129.14 -4.302232 5.257918 -77.07393 1.991303e-23 1.575851e-19
+## ENSG00000139211.6   7.038259 6.044177  91.73069 9.814316e-25 2.330017e-20
+## ENSG00000139289.13  6.438081 3.881338  87.38040 2.274059e-24 2.699422e-20
+##                           B
+## ENSG00000169129.14 43.77924
+## ENSG00000139211.6  46.45332
+## ENSG00000139289.13 45.06009
 \end{verbatim}
 
-\section{Visualizar genes DE}\label{visualizar-genes-de}
+\subsection{Visualizar genes DE}\label{visualizar-genes-de}
 
 \begin{Shaded}
 \begin{Highlighting}[]
 \CommentTok{\# Revisar los top 50 genes diferencialmente expresados}
 
-\DocumentationTok{\#\# Extraer valores de los genes de interés}
+\CommentTok{\# Extraer valores de los genes de interés}
 \NormalTok{exprs\_heatmap }\OtherTok{\textless{}{-}}\NormalTok{ vGene}\SpecialCharTok{$}\NormalTok{E[}\FunctionTok{rank}\NormalTok{(de\_results}\SpecialCharTok{$}\NormalTok{adj.P.Val) }\SpecialCharTok{\textless{}=} \DecValTok{50}\NormalTok{, ]}
 
-\DocumentationTok{\#\# Creemos una tabla con información de las muestras}
-\DocumentationTok{\#\# y con nombres de columnas más amigables}
+\CommentTok{\# Crear una tabla con información de las muestras y con nombres de columnas más amigables}
 \NormalTok{df }\OtherTok{\textless{}{-}} \FunctionTok{as.data.frame}\NormalTok{(}\FunctionTok{colData}\NormalTok{(rse\_gene\_SRP075398)[, }\FunctionTok{c}\NormalTok{(}\StringTok{"sra\_attribute.cell\_line"}\NormalTok{, }\StringTok{"sra\_attribute.transfection"}\NormalTok{)])}
 \FunctionTok{colnames}\NormalTok{(df) }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(}\StringTok{"Cell\_line"}\NormalTok{, }\StringTok{"Transfection"}\NormalTok{)}
 
-\DocumentationTok{\#\# Hagamos un heatmap}
-\FunctionTok{library}\NormalTok{(}\StringTok{"pheatmap"}\NormalTok{)}
+\CommentTok{\# Hacer un heatmap}
 \FunctionTok{pheatmap}\NormalTok{(}
 \NormalTok{    exprs\_heatmap,}
     \AttributeTok{cluster\_rows =} \ConstantTok{TRUE}\NormalTok{,}
@@ -1070,17 +1019,14 @@ FINAL)}\label{visualizar-matriz-revisar-esto-al-final}
 \begin{Highlighting}[]
 \CommentTok{\# MDS (multidimensional scaling)}
 
-\DocumentationTok{\#\# Para colores}
-\FunctionTok{library}\NormalTok{(}\StringTok{"RColorBrewer"}\NormalTok{)}
-
-\DocumentationTok{\#\# Conviertiendo los grupos de Cell\_line a colores}
+\DocumentationTok{\#\# Convertir los grupos de Cell\_line a colores}
 \NormalTok{col.group }\OtherTok{\textless{}{-}}\NormalTok{ df}\SpecialCharTok{$}\NormalTok{Cell\_line}
-\FunctionTok{levels}\NormalTok{(col.group) }\OtherTok{\textless{}{-}} \FunctionTok{brewer.pal}\NormalTok{(}\FunctionTok{nlevels}\NormalTok{(col.group), }\StringTok{"Set1"}\NormalTok{)}
+\FunctionTok{levels}\NormalTok{(col.group) }\OtherTok{\textless{}{-}} \FunctionTok{brewer.pal}\NormalTok{(}\FunctionTok{nlevels}\NormalTok{(col.group), }\StringTok{"Set2"}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
 
 \begin{verbatim}
-## Warning in brewer.pal(nlevels(col.group), "Set1"): minimal value for n is 3, returning requested palette with 3 different levels
+## Warning in brewer.pal(nlevels(col.group), "Set2"): minimal value for n is 3, returning requested palette with 3 different levels
 \end{verbatim}
 
 \begin{Shaded}
@@ -1096,13 +1042,10 @@ FINAL)}\label{visualizar-matriz-revisar-esto-al-final}
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\DocumentationTok{\#\# Para colores}
-\FunctionTok{library}\NormalTok{(}\StringTok{"RColorBrewer"}\NormalTok{)}
-
 \DocumentationTok{\#\# Convertir Transfection a colores}
 \NormalTok{col.group }\OtherTok{\textless{}{-}}\NormalTok{ df}\SpecialCharTok{$}\NormalTok{Transfection}
 \NormalTok{df}\SpecialCharTok{$}\NormalTok{Transfection }\OtherTok{\textless{}{-}} \FunctionTok{as.factor}\NormalTok{(df}\SpecialCharTok{$}\NormalTok{Transfection) }\CommentTok{\# Asegúrate de que sea un factor}
-\NormalTok{colors }\OtherTok{\textless{}{-}} \FunctionTok{brewer.pal}\NormalTok{(}\FunctionTok{nlevels}\NormalTok{(df}\SpecialCharTok{$}\NormalTok{Transfection), }\StringTok{"Set1"}\NormalTok{) }\CommentTok{\# Generar paleta de colores}
+\NormalTok{colors }\OtherTok{\textless{}{-}} \FunctionTok{brewer.pal}\NormalTok{(}\FunctionTok{nlevels}\NormalTok{(df}\SpecialCharTok{$}\NormalTok{Transfection), }\StringTok{"Set2"}\NormalTok{) }\CommentTok{\# Generar paleta de colores}
 \FunctionTok{levels}\NormalTok{(col.group) }\OtherTok{\textless{}{-}}\NormalTok{ colors }\CommentTok{\# Asignar colores a los niveles}
 \NormalTok{col.group }\OtherTok{\textless{}{-}} \FunctionTok{as.character}\NormalTok{(col.group) }\CommentTok{\# Convertir a vector de caracteres}
 
