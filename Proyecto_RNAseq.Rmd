@@ -39,7 +39,9 @@ El conjunto de datos analizado en este proyecto se deriva del estudio de Muluhng
 #        "edgeR", 
 #        "ExploreModelMatrix",
 #        "limma",
-#        "recount3"
+#        "recount3", 
+#        "SummarizedExperiment", 
+#        "GenomicRanges"
 #    )
 #)
 
@@ -53,6 +55,8 @@ El conjunto de datos analizado en este proyecto se deriva del estudio de Muluhng
 
 ## Cargar los paquetes
 library("recount3")
+library("SummarizedExperiment")
+library("GenomicRanges")
 library("limma")
 library("edgeR")
 library("ExploreModelMatrix")
