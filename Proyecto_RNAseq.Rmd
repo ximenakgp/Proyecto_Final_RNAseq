@@ -3,15 +3,15 @@ title: "Proyecto_RNAseq"
 author: "Karla Ximena González Platas"
 date: "2025-02-05"
 output:
+  html_document:
+    toc: true
+    toc_depth: '2'
+    df_print: paged
   pdf_document:
     toc: true
     toc_depth: 2
     highlight: tango
     keep_tex: true
-  html_document:
-    toc: true
-    toc_depth: '2'
-    df_print: paged
 subtitle: Análisis de Expresión Diferencial
 ---
 
@@ -99,7 +99,8 @@ project_info
 
 ```{r}
 
-# Crear un objeto de tipo RangedSummarizedExperiment (RSE) con la información a nivel de genes
+# Crear un objeto de tipo RangedSummarizedExperiment (RSE) con la información
+# a nivel de genes
 rse_gene_SRP075398 <- create_rse(project_info)
 
 # Explorar el objeto RSE
@@ -147,28 +148,33 @@ colData(rse_gene_SRP075398)[
 
 # Ajustar el tipo de dato de las variables categóricas 
 
-rse_gene_SRP075398$sra_attribute.cell_line <- factor(rse_gene_SRP075398$sra_attribute.cell_line)
+rse_gene_SRP075398$sra_attribute.cell_line <- 
+  factor(rse_gene_SRP075398$sra_attribute.cell_line)
 
-rse_gene_SRP075398$sra_attribute.source_name <- factor(tolower(rse_gene_SRP075398$sra_attribute.source_name))
+rse_gene_SRP075398$sra_attribute.source_name <- 
+  factor(tolower(rse_gene_SRP075398$sra_attribute.source_name))
 
-rse_gene_SRP075398$sra_attribute.transfection <- factor(rse_gene_SRP075398$sra_attribute.transfection)
+rse_gene_SRP075398$sra_attribute.transfection <-   
+  factor(rse_gene_SRP075398$sra_attribute.transfection)
 
 # Resumen estadístico de las variables seleccionadas
 summary(as.data.frame(colData(rse_gene_SRP075398)[
     ,
-    grepl("^sra_attribute.[cell_line|source_name|transfection]", colnames(colData(rse_gene_SRP075398)))
-]))
+    grepl("^sra_attribute.[cell_line|source_name|transfection]", 
+          colnames(colData(rse_gene_SRP075398)))
+    ]))
 
 ```
 
 ```{r}
 
-# Calcular la proporción de lecturas asignadas a genes para evaluar la calidad de las muestras
+# Calcular la proporción de lecturas asignadas a genes para evaluar la calidad # de las muestras
 rse_gene_SRP075398$assigned_gene_prop <- 
   rse_gene_SRP075398$recount_qc.gene_fc_count_all.assigned / 
   rse_gene_SRP075398$recount_qc.gene_fc_count_all.total
 
-# Resumen de la nueva variable para identificar si las muestras tienen una asignación adecuada de lecturas (valores cercanos a 1 son indicadores de buena calidad)
+# Resumen de la nueva variable para identificar si las muestras tienen una 
+# asignación adecuada de lecturas (valores cercanos a 1 son indicadores de buena calidad)
 
 summary(rse_gene_SRP075398$assigned_gene_prop)
 
@@ -180,7 +186,7 @@ summary(rse_gene_SRP075398$assigned_gene_prop)
 # Guardar el objeto original
 rse_gene_SRP075398_unfiltered <- rse_gene_SRP075398
 
-# Visualizar la distribución de la proporción de lecturas asignadas a genes en cada muestra
+# Visualizar la distribución de la proporción de lecturas asignadas a genes en # cada muestra
 
 hist(rse_gene_SRP075398$assigned_gene_prop, 
      main = "Proporción de lecturas asignadas a genes", 
@@ -195,7 +201,7 @@ rse_gene_SRP075398 <- rse_gene_SRP075398[, rse_gene_SRP075398$assigned_gene_prop
 # Crear un objeto DGEList, para el análisis diferencial usando edgeR
 dge <- DGEList(counts = assay(rse_gene_SRP075398, "counts"))
 
-# Filtrar genes de baja expresión considerando combinaciones de transfección y línea celular
+# Filtrar genes de baja expresión considerando combinaciones de transfección y # línea celular
 keep <- filterByExpr(dge, group = interaction(
   rse_gene_SRP075398$sra_attribute.transfection, 
   rse_gene_SRP075398$sra_attribute.cell_line
@@ -249,11 +255,7 @@ mod
 
 ```
 
-Este modelo incluye:
-
-      -sra_attribute.cell_line: Efecto del tipo de línea celular (LCC9 o MCF-7).
-      -sra_attribute.transfection: Efecto del tratamiento por transfección (pre-miR-29a, pre-miR-29b-1, Anti-miR-29a).
-      -assigned_gene_prop: Proporción de lecturas asignadas a genes
+Es importante mencionar que la línea celular o el tipo de transfección que acompañan a cada variable del modelo son a los que se les otorga el valor de 1, debido a un orden alfabético. Por lo tanto, si la primera columna es "sra_attribute.cell_lineMCF-7", la línea celular correspondiente a MCF-7 tendrá valor de 1 y la línea celular LCC9 de 0.
 
 ## Visualizar matriz
 
@@ -270,22 +272,20 @@ cowplot::plot_grid(plotlist = vd$plotlist)
 
 ```
 
-Interpretación de los coeficientes
+sra_attribute.cell_lineMCF-7: Este coeficiente es la diferencia entre la línea celular resistente al tratamiento (MCF-7), contra la línea celular sensible al tratamiento (LCC9), cuando la transfección se mantiene constante. Este coeficiente representa la diferencia en la respuesta entre la línea celular MCF-7 y la línea celular LCC9.
 
-    - Intercept: Representa el nivel basal del modelo, asociado a la condición de referencia, la línea celular LCC9 y el tratamiento con Anti-miR-29a.
-    - sra_attribute.cell_lineMCF-7: Indica la diferencia de expresión entre las líneas celulares MCF-7 y LCC9.
-    - sra_attribute.transfectionPre-miR-29a: Refleja los cambios en la expresión cuando se pasa de la condición de referencia a las condiciones de tratamiento Pre-miR-29a y Pre-miR-29b-1.
 
 ## Expresión diferencial
 
 ```{r}
 
-# Convertir los datos de conteo a valores log2 y ajusta las varianzas para hacerlos aptos para un análisis lineal 
+# Convertir los datos de conteo a valores log2 y ajusta las varianzas para 
+# hacerlos aptos para un análisis lineal 
 
 vGene <- voom(dge, mod, plot = TRUE)
 ```
 
-El método voom estima la relación media-varianza de los recuentos logarítmicos, genera un peso de precisión para cada observación y los ingresa en el flujo de trabajo del análisis bayesiano empírico de Limma. Por lo tanto, este gráfico generado por voom() muestra la relación entre la media y la varianza de los datos de expresión génica en escala log2. En el eje X se observa la expresión promedio de los genes, mientras que el eje Y representa la raíz cuadrada de la desviación estándar. Los genes con baja expresión presentan mayor dispersión, mientras que a niveles altos de expresión la varianza disminuye y se estabiliza. [https://genomebiology.biomedcentral.com/articles/10.1186/gb-2014-15-2-r29]
+El método voom estima la relación media-varianza de los recuentos logarítmicos, genera un peso de precisión para cada observación y los ingresa en el flujo de trabajo del análisis bayesiano empírico de Limma. Por lo tanto, este gráfico muestra la relación entre la media y la varianza de los datos de expresión génica en escala log2. En el eje X se observa la expresión promedio de los genes, mientras que el eje Y representa la raíz cuadrada de la desviación estándar. Los genes con baja expresión presentan mayor dispersión, mientras que a niveles altos de expresión la varianza disminuye y se estabiliza. [https://genomebiology.biomedcentral.com/articles/10.1186/gb-2014-15-2-r29]
 
 ```{r}
 # Ajuste del modelo lineal y cálculo de estadísticas empíricas de Bayes
@@ -306,7 +306,7 @@ dim(de_results)
 head(de_results)
 
 ```
-El coeficiente 2 (sra_attribute.cell_lineMCF-7) evalúa la expresión diferencial entre las líneas celulares MCF-7 y LCC9, lo que permite identificar genes relacionados con la resistencia a la terapia endocrina.
+El coeficiente 2 (sra_attribute.cell_lineMCF-7) evalúa la expresión diferencial entre las líneas celulares MCF-7 y LCC9, lo que podría permitir identificar genes relacionados con la resistencia a la terapia endocrina.
 
 
 ```{r}
@@ -320,7 +320,7 @@ plotMA(eb_results, coef = 2)
 
 ```
 
-El gráfico generado por la función plotMA() en el análisis de expresión diferencial muestra los resultados estadísticos del contraste entre las líneas celulares MCF-7 y LCC9. En este tipo de gráfico, el eje X representa la expresión promedio en escala logarítmica para cada gen, mientras que el eje Y muestra el cambio logarítmico en la expresión (log2 fold-change) asociado al coeficiente 2 del modelo ajustado.La línea horizontal en y = 0 representa genes sin cambios significativos en su expresión. https://www.rdocumentation.org/packages/DESeq2/versions/1.12.3/topics/plotMA
+El gráfico generado por la función plotMA() en el análisis de expresión diferencial muestra los resultados estadísticos del contraste entre las líneas celulares MCF-7 y LCC9. En este tipo de gráfico, el eje X representa la expresión promedio en escala logarítmica para cada gen, mientras que el eje Y muestra el cambio logarítmico en la expresión (log2 fold-change) asociado al coeficiente 2 del modelo.La línea horizontal en y = 0 representa genes sin cambios significativos en su expresión. https://www.rdocumentation.org/packages/DESeq2/versions/1.12.3/topics/plotMA
 
 
 ```{r}
@@ -330,22 +330,15 @@ volcanoplot(eb_results, coef = 2, highlight = 3, names = de_results$gene_name)
 de_results[de_results$gene_name %in% c("AMIGO2", "AFAP1L2", "PHLDA1"), ]
 
 ```
+[AMIGO2 en GeneCards](https://www.genecards.org/cgi-bin/carddisp.pl?gene=AMIGO2&keywords=AMIGO2)
 
+[AFAP1L2 en GeneCards](https://www.genecards.org/cgi-bin/carddisp.pl?gene=AFAP1L2&keywords=AFAP1L2)
 
-https://www.genecards.org/cgi-bin/carddisp.pl?gene=AMIGO2&keywords=AMIGO2
-
-https://www.genecards.org/cgi-bin/carddisp.pl?gene=AFAP1L2&keywords=AFAP1L2
-
-https://www.genecards.org/cgi-bin/carddisp.pl?gene=PHLDA1&keywords=PHLDA1
+[PHLDA1 en GeneCards](https://www.genecards.org/cgi-bin/carddisp.pl?gene=PHLDA1&keywords=PHLDA1)
 
 En este gráfico, cada punto representa un gen. El eje X muestra el cambio logarítmico en la expresión (log2 fold change) entre dos condiciones (en este caso, células MCF-7 resistentes a la terapia endocrina y células LCC9 sensibles). El eje Y muestra el negativo del logaritmo en base 10 del valor p ajustado (-log10(adj.P.Val)), que indica la significancia estadística del cambio en la expresión.
 
-Los puntos en la esquina superior derecha representan genes que tienen una expresión significativamente mayor en las células MCF-7 resistentes a la terapia endocrina en comparación con las células LCC9 sensibles. Estos genes podrían estar promoviendo la resistencia a la terapia endocrina.
-
-Los puntos en la esquina superior izquierda representan genes que tienen una expresión significativamente menor en las células MCF-7 resistentes a la terapia endocrina. Estos genes podrían estar siendo suprimidos en células resistentes.
-
-Los puntos en el centro del gráfico representan genes que no muestran cambios significativos en la expresión entre las dos condiciones. Esto puede ser porque los genes no están realmente regulados en respuesta a la resistencia a la terapia endocrina, o porque los cambios en la expresión son demasiado pequeños para ser detectados con el tamaño de muestra dado.
-
+Los puntos en la esquina superior derecha representan genes que tienen una expresión significativamente mayor en las células MCF-7 resistentes a la terapia endocrina en comparación con las células LCC9 sensibles. Estos genes podrían estar promoviendo la resistencia a la terapia endocrina. Los puntos en la esquina superior izquierda representan genes que tienen una expresión significativamente menor. Los puntos en el centro del gráfico representan genes que no muestran cambios significativos en la expresión entre las dos condiciones. 
 
 ## Visualizar genes DE
 
@@ -357,18 +350,10 @@ Los puntos en el centro del gráfico representan genes que no muestran cambios s
 exprs_heatmap <- vGene$E[rank(de_results$adj.P.Val) <= 50, ]
 
 # Crear una tabla con información de las muestras y con nombres de columnas más amigables
-df <- as.data.frame(colData(rse_gene_SRP075398)[, c("sra_attribute.cell_line", "sra_attribute.transfection")])
-colnames(df) <- c("Cell_line", "Transfection")
+df <- as.data.frame(colData(rse_gene_SRP075398)[, c("sra_attribute.cell_line",
+                                              "sra_attribute.transfection")])
 
-# Hacer un heatmap
-pheatmap(
-    exprs_heatmap,
-    cluster_rows = TRUE,
-    cluster_cols = TRUE,
-    show_rownames = FALSE,
-    show_colnames = FALSE,
-    annotation_col = df
-)
+colnames(df) <- c("Cell_line", "Transfection")
 
 ```
 
@@ -418,8 +403,8 @@ plotMDS(vGene$E, labels = df$Cell_line, col = col.group)
 ```
 
 Este gráfico evalúa si las muestras se agrupan según la variable Cell_line, la separación clara entre MCF-7 y LCC9 indica que hay diferencias notables en la expresión génica entre estas líneas celulares.
-Esto sugiere que LCC9 (resistente a tamoxifeno) y MCF-7 (sensible a tamoxifeno) tienen perfiles de expresión distintos, lo que podría estar influenciado por la transfección con miR-29a/b.
-Por lo tanto, es posible que los genes regulados por miR-29a/b sean clave en la resistencia al tamoxifeno o en mecanismos de adaptación celular.
+Esto sugiere que LCC9 y MCF-7 tienen perfiles de expresión distintos, lo que podría estar influenciado por la transfección con miR-29a/b.
+Por lo tanto, es posible que los genes regulados por miR-29a/b sean clave en la resistencia a la terapia endocrina.
 
 ```{r}
 
@@ -435,7 +420,7 @@ plotMDS(vGene$E, labels = df$Transfection, col = col.group,
         main = "MDS Plot by Transfection", pch = 16)
 
 ## Agregar leyenda
-legend("topright", legend = levels(df$Transfection), fill = unique(col.group),
+legend("center", legend = levels(df$Transfection), fill = unique(col.group),
        title = "Transfection Groups")
 ```
 
