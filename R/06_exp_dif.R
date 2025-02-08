@@ -45,16 +45,6 @@ exprs_heatmap <- vGene$E[rank(de_results$adj.P.Val) <= 50, ]
 df <- as.data.frame(colData(rse_gene_SRP075398)[, c("sra_attribute.cell_line", "sra_attribute.transfection")])
 colnames(df) <- c("Cell_line", "Transfection")
 
-# Hacer un heatmap
-pheatmap(
-  exprs_heatmap,
-  cluster_rows = TRUE,
-  cluster_cols = TRUE,
-  show_rownames = FALSE,
-  show_colnames = FALSE,
-  annotation_col = df
-)
-
 ## Guardemos los IDs de nuestros 50 genes
 nombres_originales <- rownames(exprs_heatmap)
 
