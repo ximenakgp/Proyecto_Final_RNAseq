@@ -1748,9 +1748,9 @@ library(&quot;pheatmap&quot;)</code></pre>
 <h2>Selección de Proyecto</h2>
 <pre class="r"><code># Obtener la lista de proyectos disponibles 
 human_projects &lt;- available_projects()</code></pre>
-<pre><code>## 2025-02-08 00:17:36.317806 caching file sra.recount_project.MD.gz.</code></pre>
-<pre><code>## 2025-02-08 00:17:37.170517 caching file gtex.recount_project.MD.gz.</code></pre>
-<pre><code>## 2025-02-08 00:17:37.769518 caching file tcga.recount_project.MD.gz.</code></pre>
+<pre><code>## 2025-02-08 00:24:21.77628 caching file sra.recount_project.MD.gz.</code></pre>
+<pre><code>## 2025-02-08 00:24:22.630318 caching file gtex.recount_project.MD.gz.</code></pre>
+<pre><code>## 2025-02-08 00:24:23.251578 caching file tcga.recount_project.MD.gz.</code></pre>
 <pre class="r"><code># Ver los proyectos disponibles
 dim(human_projects)</code></pre>
 <pre><code>## [1] 8742    6</code></pre>
@@ -1788,17 +1788,17 @@ project_info</code></pre>
 <pre class="r"><code># Crear un objeto de tipo RangedSummarizedExperiment (RSE) con la información
 # a nivel de genes
 rse_gene_SRP075398 &lt;- create_rse(project_info)</code></pre>
-<pre><code>## 2025-02-08 00:17:46.639722 downloading and reading the metadata.</code></pre>
-<pre><code>## 2025-02-08 00:17:47.373993 caching file sra.sra.SRP075398.MD.gz.</code></pre>
-<pre><code>## 2025-02-08 00:17:47.975929 caching file sra.recount_project.SRP075398.MD.gz.</code></pre>
-<pre><code>## 2025-02-08 00:17:48.584118 caching file sra.recount_qc.SRP075398.MD.gz.</code></pre>
-<pre><code>## 2025-02-08 00:17:49.191083 caching file sra.recount_seq_qc.SRP075398.MD.gz.</code></pre>
-<pre><code>## 2025-02-08 00:17:49.832355 caching file sra.recount_pred.SRP075398.MD.gz.</code></pre>
-<pre><code>## 2025-02-08 00:17:50.12231 downloading and reading the feature information.</code></pre>
-<pre><code>## 2025-02-08 00:17:50.530389 caching file human.gene_sums.G026.gtf.gz.</code></pre>
-<pre><code>## 2025-02-08 00:17:51.722011 downloading and reading the counts: 18 samples across 63856 features.</code></pre>
-<pre><code>## 2025-02-08 00:17:52.174114 caching file sra.gene_sums.SRP075398.G026.gz.</code></pre>
-<pre><code>## 2025-02-08 00:17:53.091812 constructing the RangedSummarizedExperiment (rse) object.</code></pre>
+<pre><code>## 2025-02-08 00:24:31.116795 downloading and reading the metadata.</code></pre>
+<pre><code>## 2025-02-08 00:24:32.03287 caching file sra.sra.SRP075398.MD.gz.</code></pre>
+<pre><code>## 2025-02-08 00:24:32.723481 caching file sra.recount_project.SRP075398.MD.gz.</code></pre>
+<pre><code>## 2025-02-08 00:24:33.439955 caching file sra.recount_qc.SRP075398.MD.gz.</code></pre>
+<pre><code>## 2025-02-08 00:24:34.131911 caching file sra.recount_seq_qc.SRP075398.MD.gz.</code></pre>
+<pre><code>## 2025-02-08 00:24:34.829228 caching file sra.recount_pred.SRP075398.MD.gz.</code></pre>
+<pre><code>## 2025-02-08 00:24:35.084874 downloading and reading the feature information.</code></pre>
+<pre><code>## 2025-02-08 00:24:35.527169 caching file human.gene_sums.G026.gtf.gz.</code></pre>
+<pre><code>## 2025-02-08 00:24:36.894511 downloading and reading the counts: 18 samples across 63856 features.</code></pre>
+<pre><code>## 2025-02-08 00:24:37.495587 caching file sra.gene_sums.SRP075398.G026.gz.</code></pre>
+<pre><code>## 2025-02-08 00:24:38.21229 constructing the RangedSummarizedExperiment (rse) object.</code></pre>
 <pre class="r"><code># Explorar el objeto RSE
 rse_gene_SRP075398</code></pre>
 <pre><code>## class: RangedSummarizedExperiment 
@@ -1814,7 +1814,7 @@ rse_gene_SRP075398</code></pre>
 <pre class="r"><code>## Información sobre el RSE creado
 metadata(rse_gene_SRP075398)</code></pre>
 <pre><code>## $time_created
-## [1] &quot;2025-02-08 00:17:53 CST&quot;
+## [1] &quot;2025-02-08 00:24:38 CST&quot;
 ## 
 ## $recount3_version
 ##           package ondiskversion loadedversion
@@ -2420,7 +2420,7 @@ líneas celulares, destacando genes como AMIGO2 con mayor expresión en
 MCF-7, mientras que AFAP1L2, PLS3, STAT6 y FKBP10 presentaron niveles
 más altos en LCC9.</p>
 <p>Además, los paquetes empleados en este estudio, son herramientas
-bioinformpaticas muy útiles que permiten llevar a cabo un protocolo
+bioinformáticas muy útiles que permiten llevar a cabo un protocolo
 estándar para el análisis de expresión diferencial que incluye:
 procesamiento de datos, filtrado de genes, normalización, construcción
 de modelos y pruebas estadísticas. Por lo que, el conocimiento de este
