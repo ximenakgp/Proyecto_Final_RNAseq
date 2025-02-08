@@ -3,15 +3,15 @@ title: "Proyecto_RNAseq"
 author: "Karla Ximena González Platas"
 date: "2025-02-05"
 output:
-  html_document:
-    toc: true
-    toc_depth: '2'
-    df_print: paged
   pdf_document:
     toc: true
     toc_depth: 2
     highlight: tango
     keep_tex: true
+  html_document:
+    toc: true
+    toc_depth: '2'
+    df_print: paged
 subtitle: Análisis de Expresión Diferencial
 bibliography: ./export_references.bib
 ---
@@ -189,7 +189,8 @@ summary(rse_gene_SRP075398$assigned_gene_prop)
 
 ## Filtrar genes de baja expresión
 
-```{r}
+```{r fig.cap="Histograma"}
+
 # Guardar el objeto original
 rse_gene_SRP075398_unfiltered <- rse_gene_SRP075398
 
@@ -199,6 +200,9 @@ rse_gene_SRP075398_unfiltered <- rse_gene_SRP075398
 hist(rse_gene_SRP075398$assigned_gene_prop, 
      main = "Proporción de lecturas asignadas a genes", 
      xlab = "Proporción asignada", col = "lightblue")
+```
+
+```{r}
 
 # Verificar si existen muestras de baja calidad antes del filtrado
 table(rse_gene_SRP075398$assigned_gene_prop < 0.3)
@@ -268,7 +272,7 @@ Es importante mencionar que la línea celular o el tipo de transfección que aco
 
 ## Visualizar matriz
 
-```{r}
+```{r fig.cap="Matriz de coeficientes"}
 
 ## Crear las visualizaciones
 vd <- ExploreModelMatrix::VisualizeDesign(
@@ -286,7 +290,7 @@ sra_attribute.cell_lineMCF-7: Este coeficiente es la diferencia entre la línea 
 
 ## Expresión diferencial
 
-```{r}
+```{r fig.cap="voom"}
 
 # Convertir los datos de conteo a valores log2 y ajusta las varianzas para 
 # hacerlos aptos para un análisis lineal 
@@ -318,7 +322,7 @@ head(de_results)
 El coeficiente 2 (sra_attribute.cell_lineMCF-7) evalúa la expresión diferencial entre las líneas celulares MCF-7 y LCC9, lo que podría permitir identificar genes relacionados con la resistencia a la terapia endocrina.
 
 
-```{r}
+```{r fig.cap="plotMA"}
 
 # Genes diferencialmente expresados con FDR < 5%
 table(de_results$adj.P.Val < 0.05)
@@ -332,7 +336,8 @@ plotMA(eb_results, coef = 2)
 El gráfico generado por la función plotMA() en el análisis de expresión diferencial muestra los resultados estadísticos del contraste entre las líneas celulares MCF-7 y LCC9. En este tipo de gráfico, el eje X representa la expresión promedio en escala logarítmica para cada gen, mientras que el eje Y muestra el cambio logarítmico en la expresión (log2 fold-change) asociado al coeficiente 2 del modelo.La línea horizontal en y = 0 representa genes sin cambios significativos en su expresión.
 
 
-```{r}
+```{r fig.cap="volcanoplot"}
+
 volcanoplot(eb_results, coef = 2, highlight = 3, names = de_results$gene_name)
 
 # Información de los 3 genes más significativos 
@@ -364,7 +369,8 @@ colnames(df) <- c("Cell_line", "Transfection")
 
 ```
 
-```{r}
+```{r fig.cap="Heatmap"}
+
 ## Guardemos los IDs de nuestros 50 genes
 nombres_originales <- rownames(exprs_heatmap)
 
@@ -392,7 +398,7 @@ El heatmap muestra patrones de expresión génica distintos entre las líneas ce
 
 Por otro lado, PHLDA1 no muestra diferencias tan marcadas en su expresión entre las dos líneas celulares, aunque parece tener una expresión ligeramente más alta en las células MCF-7 en comparación con las células LCC9.
 
-```{r}
+```{r fig.cap="plotMDS Cell_Line"}
 
 # MDS (multidimensional scaling)
 
@@ -409,7 +415,7 @@ Este gráfico evalúa si las muestras se agrupan según la variable Cell_line, l
 Esto sugiere que LCC9 y MCF-7 tienen perfiles de expresión distintos, lo que podría estar influenciado por la transfección con miR-29a/b.
 Por lo tanto, es posible que los genes regulados por miR-29a/b sean clave en la resistencia a la terapia endocrina.
 
-```{r}
+```{r fig.cap="plotMDS Transfection"}
 
 ## Convertir Transfection a colores
 col.group <- df$Transfection
