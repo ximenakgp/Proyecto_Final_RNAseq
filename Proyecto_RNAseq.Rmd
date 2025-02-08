@@ -3,21 +3,22 @@ title: "Proyecto_RNAseq"
 author: "Karla Ximena González Platas"
 date: "2025-02-05"
 output:
-  html_document:
-    toc: true
-    toc_depth: '2'
-    df_print: paged
   pdf_document:
     toc: true
     toc_depth: 2
     highlight: tango
     keep_tex: true
+  html_document:
+    toc: true
+    toc_depth: '2'
+    df_print: paged
 subtitle: Análisis de Expresión Diferencial
+bibliography: ./export_references.bib
 ---
 
 ## Introducción 
 El conjunto de datos analizado en este proyecto se deriva del estudio de Muluhngwi y Klinge (2021), que explora las interacciones regulatorias entre los miembros de la familia miR-29 y los lncRNAs (ARN largos no codificantes) en el contexto de la resistencia a la terapia endocrina. En este estudio, se aplicó el análisis de RNA-seq para investigar la expresión de lncRNAs regulados por miR-29b-1-3p y miR-29a-3p en células de cáncer de mama sensibles a la terapia endocrina (MCF-7) y resistentes a la terapia endocrina (LCC9).
-Estas líneas celulares fueron empleadas para estudiar los efectos de la regulación de lncRNAs por los miR-29b-1-3p y miR-29a-3p en la resistencia endocrina del cáncer de mama. Para ello, se realizaron transfecciones en las células MCF-7 y LCC9 con pre-miR-29b-1-3p y pre-miR-29a-3p para evaluar los efectos de su sobreexpresión en la proliferación celular y en la regulación de lncRNAs. Mientras tanto, el uso de anti-miR-29 y un control negativo permitió analizar la inhibición de estos miRNAs.
+Estas líneas celulares fueron empleadas para estudiar los efectos de la regulación de lncRNAs por los miR-29b-1-3p y miR-29a-3p en la resistencia endocrina del cáncer de mama. Para ello, se realizaron transfecciones en las células MCF-7 y LCC9 con pre-miR-29b-1-3p y pre-miR-29a-3p para evaluar los efectos de su sobreexpresión en la proliferación celular y en la regulación de lncRNAs. Mientras tanto, el uso de anti-miR-29 y un control negativo permitió analizar la inhibición de estos miRNAs.[@Muluhngwi2021]
 
 
 ## Pregunta de investigación
@@ -293,7 +294,7 @@ sra_attribute.cell_lineMCF-7: Este coeficiente es la diferencia entre la línea 
 vGene <- voom(dge, mod, plot = TRUE)
 ```
 
-El método voom estima la relación media-varianza de los recuentos logarítmicos, genera un peso de precisión para cada observación y los ingresa en el flujo de trabajo del análisis bayesiano empírico de Limma. Por lo tanto, este gráfico muestra la relación entre la media y la varianza de los datos de expresión génica en escala log2. En el eje X se observa la expresión promedio de los genes, mientras que el eje Y representa la raíz cuadrada de la desviación estándar. Los genes con baja expresión presentan mayor dispersión, mientras que a niveles altos de expresión la varianza disminuye y se estabiliza. [https://genomebiology.biomedcentral.com/articles/10.1186/gb-2014-15-2-r29]
+El método voom estima la relación media-varianza de los recuentos logarítmicos, genera un peso de precisión para cada observación y los ingresa en el flujo de trabajo del análisis bayesiano empírico de Limma. Por lo tanto, este gráfico muestra la relación entre la media y la varianza de los datos de expresión génica en escala log2. En el eje X se observa la expresión promedio de los genes, mientras que el eje Y representa la raíz cuadrada de la desviación estándar. Los genes con baja expresión presentan mayor dispersión, mientras que a niveles altos de expresión la varianza disminuye y se estabiliza. [@Law2014]
 
 ```{r}
 # Ajuste del modelo lineal y cálculo de estadísticas empíricas de Bayes
@@ -328,7 +329,7 @@ plotMA(eb_results, coef = 2)
 
 ```
 
-El gráfico generado por la función plotMA() en el análisis de expresión diferencial muestra los resultados estadísticos del contraste entre las líneas celulares MCF-7 y LCC9. En este tipo de gráfico, el eje X representa la expresión promedio en escala logarítmica para cada gen, mientras que el eje Y muestra el cambio logarítmico en la expresión (log2 fold-change) asociado al coeficiente 2 del modelo.La línea horizontal en y = 0 representa genes sin cambios significativos en su expresión. https://www.rdocumentation.org/packages/DESeq2/versions/1.12.3/topics/plotMA
+El gráfico generado por la función plotMA() en el análisis de expresión diferencial muestra los resultados estadísticos del contraste entre las líneas celulares MCF-7 y LCC9. En este tipo de gráfico, el eje X representa la expresión promedio en escala logarítmica para cada gen, mientras que el eje Y muestra el cambio logarítmico en la expresión (log2 fold-change) asociado al coeficiente 2 del modelo.La línea horizontal en y = 0 representa genes sin cambios significativos en su expresión.
 
 
 ```{r}
@@ -345,8 +346,6 @@ de_results[de_results$gene_name %in% c("AMIGO2", "AFAP1L2", "PHLDA1"), ]
 [PHLDA1 en GeneCards](https://www.genecards.org/cgi-bin/carddisp.pl?gene=PHLDA1&keywords=PHLDA1)
 
 En el volcanoplot creado los genes más significativos se muestran en la parte superior. Cada punto del gráfico representa un gen. Las diferencias de log 2 entre los grupos se representan en el eje x y las diferencias de log 10 en el valor p se representan en el eje y. Los genes cuya expresión disminuye se ubican a la izquierda del cero en el eje x, mientras que los genes cuya expresión aumenta se ilustran a la derecha del cero. Entonces, el gráfico muestra genes con aumento de expresión en MCF-7 (sensible) a la derecha (en comparación con LCC9), y genes con disminución de expresión en MCF-7 a la izquierda (en comparación con LCC9). 
-https://www.htgmolecular.com/blog/2022-08-25/understanding-volcano-plots
-
 
 ## Visualizar genes DE
 
@@ -434,8 +433,8 @@ El gráfico MDS muestra una cierta separación entre los grupos de transfección
 
 El análisis de expresión diferencial realizado en este proyecto permitió identificar genes relacionados con la resistencia a la terapia endocrina en cáncer de mama. A través de diversas visualizaciones, se evidenciaron diferencias significativas en los perfiles de expresión entre las líneas celulares MCF-7 (sensibles) y LCC9 (resistentes). El heatmap mostró patrones distintivos de expresión génica entre ambas líneas celulares, destacando genes como AMIGO2 con mayor expresión en MCF-7, mientras que AFAP1L2, PLS3, STAT6 y FKBP10 presentaron niveles más altos en LCC9.
 
-Además, los paquetes empleados en este estudio, son herramientas bioinformpaticas muy útiles que permiten llevar a cabo un protocolo estándar para el análisis de expresión diferencial que incluye: procesamiento de datos, filtrado de genes, normalización, construcción de modelos y pruebas estadísticas. Por lo que, el conocimiento de este flujo de trabajo es fundamental para cualquier investigador que busca comprender mecanismos moleculares o desarrollar nuevas estrategias terapéuticas.
+Además, los paquetes empleados en este estudio, son herramientas bioinformáticas muy útiles que permiten llevar a cabo un protocolo estándar para el análisis de expresión diferencial que incluye: procesamiento de datos, filtrado de genes, normalización, construcción de modelos y pruebas estadísticas. Por lo que, el conocimiento de este flujo de trabajo es fundamental para cualquier investigador que busca comprender mecanismos moleculares o desarrollar nuevas estrategias terapéuticas.
 
 
-
+## Referencias
 

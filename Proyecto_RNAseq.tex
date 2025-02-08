@@ -94,6 +94,39 @@
 \providecommand{\tightlist}{%
   \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
 \setcounter{secnumdepth}{-\maxdimen} % remove section numbering
+% definitions for citeproc citations
+\NewDocumentCommand\citeproctext{}{}
+\NewDocumentCommand\citeproc{mm}{%
+  \begingroup\def\citeproctext{#2}\cite{#1}\endgroup}
+\makeatletter
+ % allow citations to break across lines
+ \let\@cite@ofmt\@firstofone
+ % avoid brackets around text for \cite:
+ \def\@biblabel#1{}
+ \def\@cite#1#2{{#1\if@tempswa , #2\fi}}
+\makeatother
+\newlength{\cslhangindent}
+\setlength{\cslhangindent}{1.5em}
+\newlength{\csllabelwidth}
+\setlength{\csllabelwidth}{3em}
+\newenvironment{CSLReferences}[2] % #1 hanging-indent, #2 entry-spacing
+ {\begin{list}{}{%
+  \setlength{\itemindent}{0pt}
+  \setlength{\leftmargin}{0pt}
+  \setlength{\parsep}{0pt}
+  % turn on hanging indent if param 1 is 1
+  \ifodd #1
+   \setlength{\leftmargin}{\cslhangindent}
+   \setlength{\itemindent}{-1\cslhangindent}
+  \fi
+  % set entry spacing
+  \setlength{\itemsep}{#2\baselineskip}}}
+ {\end{list}}
+\usepackage{calc}
+\newcommand{\CSLBlock}[1]{\hfill\break\parbox[t]{\linewidth}{\strut\ignorespaces#1\strut}}
+\newcommand{\CSLLeftMargin}[1]{\parbox[t]{\csllabelwidth}{\strut#1\strut}}
+\newcommand{\CSLRightInline}[1]{\parbox[t]{\linewidth - \csllabelwidth}{\strut#1\strut}}
+\newcommand{\CSLIndent}[1]{\hspace{\cslhangindent}#1}
 \ifLuaTeX
   \usepackage{selnolig}  % disable illegal ligatures
 \fi
@@ -140,7 +173,8 @@ mama. Para ello, se realizaron transfecciones en las células MCF-7 y
 LCC9 con pre-miR-29b-1-3p y pre-miR-29a-3p para evaluar los efectos de
 su sobreexpresión en la proliferación celular y en la regulación de
 lncRNAs. Mientras tanto, el uso de anti-miR-29 y un control negativo
-permitió analizar la inhibición de estos miRNAs.
+permitió analizar la inhibición de estos miRNAs.(Muluhngwi and Klinge
+2021)
 
 \subsection{Pregunta de
 investigación}\label{pregunta-de-investigaciuxf3n}
@@ -210,15 +244,15 @@ paquetes}\label{instalaciuxf3n-y-carga-de-paquetes}
 \end{Shaded}
 
 \begin{verbatim}
-## 2025-02-07 23:35:41.491777 caching file sra.recount_project.MD.gz.
+## 2025-02-08 00:18:49.0854 caching file sra.recount_project.MD.gz.
 \end{verbatim}
 
 \begin{verbatim}
-## 2025-02-07 23:35:43.297466 caching file gtex.recount_project.MD.gz.
+## 2025-02-08 00:18:50.896875 caching file gtex.recount_project.MD.gz.
 \end{verbatim}
 
 \begin{verbatim}
-## 2025-02-07 23:35:43.951757 caching file tcga.recount_project.MD.gz.
+## 2025-02-08 00:18:51.650773 caching file tcga.recount_project.MD.gz.
 \end{verbatim}
 
 \begin{Shaded}
@@ -292,47 +326,47 @@ paquetes}\label{instalaciuxf3n-y-carga-de-paquetes}
 \end{Shaded}
 
 \begin{verbatim}
-## 2025-02-07 23:35:52.11554 downloading and reading the metadata.
+## 2025-02-08 00:19:00.25997 downloading and reading the metadata.
 \end{verbatim}
 
 \begin{verbatim}
-## 2025-02-07 23:35:52.918874 caching file sra.sra.SRP075398.MD.gz.
+## 2025-02-08 00:19:01.369594 caching file sra.sra.SRP075398.MD.gz.
 \end{verbatim}
 
 \begin{verbatim}
-## 2025-02-07 23:35:53.721565 caching file sra.recount_project.SRP075398.MD.gz.
+## 2025-02-08 00:19:02.226195 caching file sra.recount_project.SRP075398.MD.gz.
 \end{verbatim}
 
 \begin{verbatim}
-## 2025-02-07 23:35:54.535165 caching file sra.recount_qc.SRP075398.MD.gz.
+## 2025-02-08 00:19:03.050879 caching file sra.recount_qc.SRP075398.MD.gz.
 \end{verbatim}
 
 \begin{verbatim}
-## 2025-02-07 23:35:55.332418 caching file sra.recount_seq_qc.SRP075398.MD.gz.
+## 2025-02-08 00:19:03.900093 caching file sra.recount_seq_qc.SRP075398.MD.gz.
 \end{verbatim}
 
 \begin{verbatim}
-## 2025-02-07 23:35:56.259312 caching file sra.recount_pred.SRP075398.MD.gz.
+## 2025-02-08 00:19:04.795734 caching file sra.recount_pred.SRP075398.MD.gz.
 \end{verbatim}
 
 \begin{verbatim}
-## 2025-02-07 23:35:56.536538 downloading and reading the feature information.
+## 2025-02-08 00:19:05.043538 downloading and reading the feature information.
 \end{verbatim}
 
 \begin{verbatim}
-## 2025-02-07 23:35:57.030372 caching file human.gene_sums.G026.gtf.gz.
+## 2025-02-08 00:19:05.604873 caching file human.gene_sums.G026.gtf.gz.
 \end{verbatim}
 
 \begin{verbatim}
-## 2025-02-07 23:35:58.159632 downloading and reading the counts: 18 samples across 63856 features.
+## 2025-02-08 00:19:06.663228 downloading and reading the counts: 18 samples across 63856 features.
 \end{verbatim}
 
 \begin{verbatim}
-## 2025-02-07 23:35:58.844525 caching file sra.gene_sums.SRP075398.G026.gz.
+## 2025-02-08 00:19:07.348284 caching file sra.gene_sums.SRP075398.G026.gz.
 \end{verbatim}
 
 \begin{verbatim}
-## 2025-02-07 23:35:59.423482 constructing the RangedSummarizedExperiment (rse) object.
+## 2025-02-08 00:19:07.91128 constructing the RangedSummarizedExperiment (rse) object.
 \end{verbatim}
 
 \begin{Shaded}
@@ -364,7 +398,7 @@ paquetes}\label{instalaciuxf3n-y-carga-de-paquetes}
 
 \begin{verbatim}
 ## $time_created
-## [1] "2025-02-07 23:35:59 CST"
+## [1] "2025-02-08 00:19:07 CST"
 ## 
 ## $recount3_version
 ##           package ondiskversion loadedversion
@@ -914,8 +948,7 @@ varianza de los datos de expresión génica en escala log2. En el eje X se
 observa la expresión promedio de los genes, mientras que el eje Y
 representa la raíz cuadrada de la desviación estándar. Los genes con
 baja expresión presentan mayor dispersión, mientras que a niveles altos
-de expresión la varianza disminuye y se estabiliza.
-{[}\url{https://genomebiology.biomedcentral.com/articles/10.1186/gb-2014-15-2-r29}{]}
+de expresión la varianza disminuye y se estabiliza. (Law et al. 2014)
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -1013,7 +1046,6 @@ mientras que el eje Y muestra el cambio logarítmico en la expresión
 (log2 fold-change) asociado al coeficiente 2 del modelo.La línea
 horizontal en y = 0 representa genes sin cambios significativos en su
 expresión.
-\url{https://www.rdocumentation.org/packages/DESeq2/versions/1.12.3/topics/plotMA}
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -1068,7 +1100,6 @@ derecha del cero. Entonces, el gráfico muestra genes con aumento de
 expresión en MCF-7 (sensible) a la derecha (en comparación con LCC9), y
 genes con disminución de expresión en MCF-7 a la izquierda (en
 comparación con LCC9).
-\url{https://www.htgmolecular.com/blog/2022-08-25/understanding-volcano-plots}
 
 \subsection{Visualizar genes DE}\label{visualizar-genes-de}
 
@@ -1221,5 +1252,24 @@ de modelos y pruebas estadísticas. Por lo que, el conocimiento de este
 flujo de trabajo es fundamental para cualquier investigador que busca
 comprender mecanismos moleculares o desarrollar nuevas estrategias
 terapéuticas.
+
+\subsection*{Referencias}\label{referencias}
+\addcontentsline{toc}{subsection}{Referencias}
+
+\phantomsection\label{refs}
+\begin{CSLReferences}{1}{0}
+\bibitem[\citeproctext]{ref-Law2014}
+Law, Charity W., Yunshun Chen, Wei Shi, and Gordon K. Smyth. 2014.
+{``Voom: Precision Weights Unlock Linear Model Analysis Tools for
+RNA-Seq Read Counts.''} \emph{Genome Biology} 15 (February).
+\url{https://doi.org/10.1186/gb-2014-15-2-r29}.
+
+\bibitem[\citeproctext]{ref-Muluhngwi2021}
+Muluhngwi, Penn, and Carolyn M. Klinge. 2021. {``Identification and
+Roles of Mir-29b-1-3p and Mir29a-3p-Regulated and Non-Regulated Lncrnas
+in Endocrine-Sensitive and Resistant Breast Cancer Cells.''}
+\emph{Cancers} 13 (July). \url{https://doi.org/10.3390/cancers13143530}.
+
+\end{CSLReferences}
 
 \end{document}
